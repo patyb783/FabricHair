@@ -55,6 +55,17 @@
                         </div>
                     </div>
 
+                    <div class="col-md-6 mt-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="permiteColeta"
+                                th:field="*{permiteColeta}">
+                            <label class="form-check-label" for="permiteColeta" style="font-weight:600">Permitir
+                                Coleta</label>
+                        </div>
+                        <small class="text-muted d-block" style="font-size:0.75rem; margin-top:2px;">Se ativo, habilita
+                            a opção de solicitar coleta de mercadorias no Centro de Distribuição.</small>
+                    </div>
+
                     <!-- Configuração Integração Rastreio -->
                     <div class="col-12 mt-4">
                         <div class="card bg-light border-0">
@@ -65,6 +76,12 @@
                                     transportadora serão rastreados automaticamente.</p>
 
                                 <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label" style="font-size:0.85rem;font-weight:600">Nome da
+                                            Integração / Servico</label>
+                                        <input type="text" class="form-control" th:field="*{nomeIntegracao}"
+                                            placeholder="Ex: Loggi SP">
+                                    </div>
                                     <div class="col-md-4">
                                         <label class="form-label" style="font-size:0.85rem;font-weight:600">Tipo de
                                             Integração</label>
@@ -77,15 +94,96 @@
                                             <option value="GETLOG">Getlog</option>
                                             <option value="OUTROS">Outra (URL Personalizada)</option>
                                         </select>
+                                        <div class="col-md-4" id="divUrlCustomizada" style="display:none">
+                                            <label class="form-label" style="font-size:0.85rem;font-weight:600">URL de
+                                                Rastreio (se aplicável)</label>
+                                            <input type="text" class="form-control" th:field="*{urlRastreioPadrao}"
+                                                placeholder="Ex: site.com/rastreio?codigo={codigo}">
+                                            <small class="text-muted" style="font-size:0.75rem">Use
+                                                <code>{codigo}</code> para a variável do rastreio.</small>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label" style="font-size:0.85rem;font-weight:600">Prazo de
+                                                Entrega (Dias)</label>
+                                            <input type="number" class="form-control" th:field="*{prazoEntregaPadrao}"
+                                                placeholder="Ex: 5">
+                                        </div>
+
+                                        <!-- Taxas -->
+                                        <div class="col-12 mt-3">
+                                            <h6
+                                                style="font-size:0.85rem;font-weight:700;color:#475569;margin-bottom:10px;">
+                                                Composição de Custos e Taxas</h6>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label" style="font-size:0.85rem;font-weight:600">Taxa
+                                                sobre Produtos (%)</label>
+                                            <input type="number" step="0.01" class="form-control"
+                                                th:field="*{taxaValorProduto}" placeholder="Ex: 1.50">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label" style="font-size:0.85rem;font-weight:600">Taxa
+                                                sobre Frete (%)</label>
+                                            <input type="number" step="0.01" class="form-control"
+                                                th:field="*{taxaValorFrete}" placeholder="Ex: 0.50">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label" style="font-size:0.85rem;font-weight:600">Taxa
+                                                Adicional no Pedido (R$)</label>
+                                            <input type="number" step="0.01" class="form-control"
+                                                th:field="*{taxaAdicionalPedido}" placeholder="Ex: 10.00">
+                                        </div>
+
+                                        <!-- Taxas -->
+                                        <div class="col-12 mt-3">
+                                            <h6
+                                                style="font-size:0.85rem;font-weight:700;color:#475569;margin-bottom:10px;">
+                                                Composição de Custos e Taxas</h6>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label" style="font-size:0.85rem;font-weight:600">Taxa
+                                                sobre
+                                                Produtos (%)</label>
+                                            <input type="number" step="0.01" class="form-control"
+                                                th:field="*{taxaValorProduto}" placeholder="Ex: 1.50">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label" style="font-size:0.85rem;font-weight:600">Taxa
+                                                sobre
+                                                Frete (%)</label>
+                                            <input type="number" step="0.01" class="form-control"
+                                                th:field="*{taxaValorFrete}" placeholder="Ex: 0.50">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label" style="font-size:0.85rem;font-weight:600">Taxa
+                                                Adicional no Pedido (R$)</label>
+                                            <input type="number" step="0.01" class="form-control"
+                                                th:field="*{taxaAdicionalPedido}" placeholder="Ex: 10.00">
+                                        </div>
                                     </div>
-                                    <div class="col-md-8" id="divUrlCustomizada" style="display:none">
-                                        <label class="form-label" style="font-size:0.85rem;font-weight:600">URL de
-                                            Rastreio Personalizada</label>
-                                        <input type="text" class="form-control" th:field="*{urlRastreioPadrao}"
-                                            placeholder="Ex: https://site.com/rastreio?codigo={codigo}">
-                                        <small class="text-muted" style="font-size:0.75rem">Use a tag
-                                            <code>{codigo}</code> no local onde o código de rastreio deve ser
-                                            inserido.</small>
+
+                                    <div class="row g-3 mt-2" id="divApiLoggi" style="display:none">
+                                        <div class="row g-2">
+                                            <div class="col-md-6">
+                                                <label class="form-label"
+                                                    style="font-size:0.85rem;font-weight:600">E-mail
+                                                    Loggi</label>
+                                                <input type="email" class="form-control" th:field="*{loggiEmail}"
+                                                    placeholder="Ex: email@empresa.com">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label" style="font-size:0.85rem;font-weight:600">API
+                                                    Key Loggi</label>
+                                                <input type="password" class="form-control" th:field="*{loggiApiKey}"
+                                                    placeholder="Chave de Acesso API">
+                                            </div>
+                                            <div class="col-12">
+                                                <small class="text-muted" style="font-size:0.75rem"><i
+                                                        class="fas fa-info-circle me-1"></i>Estes dados serão usados
+                                                    para solicitar coleta e obter código de rastreio automaticamente na
+                                                    finalização do pedido via API.</small>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -104,53 +202,56 @@
         </div>
     </div>
 </main>
-document.addEventListener("DOMContentLoaded", function () {
-toggleUrlPersonalizada(); // Trigger on load
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        toggleUrlPersonalizada(); // Trigger on load
 
-const btnBusca = document.getElementById("btnBuscaCnpj");
-if (btnBusca) {
-btnBusca.addEventListener("click", function () {
-let cnpjInput = document.getElementById("cnpj").value.replace(/\D/g, '');
-const msgObj = document.getElementById("msgCnpj");
-if (cnpjInput.length !== 14) {
-msgObj.textContent = "CNPJ inválido (deve conter 14 dígitos).";
-msgObj.className = "text-danger";
-return;
-}
+        const btnBusca = document.getElementById("btnBuscaCnpj");
+        if (btnBusca) {
+            btnBusca.addEventListener("click", function () {
+                let cnpjInput = document.getElementById("cnpj").value.replace(/\D/g, '');
+                const msgObj = document.getElementById("msgCnpj");
+                if (cnpjInput.length !== 14) {
+                    msgObj.textContent = "CNPJ inválido (deve conter 14 dígitos).";
+                    msgObj.className = "text-danger";
+                    return;
+                }
 
-// Add icon spinning
-const icon = this.querySelector("i");
-if (icon) icon.className = "fas fa-spinner fa-spin";
+                // Add icon spinning
+                const icon = this.querySelector("i");
+                if (icon) icon.className = "fas fa-spinner fa-spin";
 
-fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjInput}`)
-.then(response => {
-if (!response.ok) throw new Error("CNPJ não encontrado na Receita Federal");
-return response.json();
-})
-.then(data => {
-document.getElementById("razaoSocial").value = data.nome_fantasia || data.razao_social || '';
-document.getElementById("telefone").value = data.ddd_telefone_1 || '';
-msgObj.textContent = "Dados encontrados com sucesso!";
-msgObj.className = "text-success";
-})
-.catch(error => {
-msgObj.textContent = error.message;
-msgObj.className = "text-danger";
-})
-.finally(() => {
-if (icon) icon.className = "fas fa-search";
-});
-});
-}
-});
+                fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjInput}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error("CNPJ não encontrado na Receita Federal");
+                        return response.json();
+                    })
+                    .then(data => {
+                        document.getElementById("razaoSocial").value = data.nome_fantasia || data.razao_social || '';
+                        document.getElementById("telefone").value = data.ddd_telefone_1 || '';
+                        msgObj.textContent = "Dados encontrados com sucesso!";
+                        msgObj.className = "text-success";
+                    })
+                    .catch(error => {
+                        msgObj.textContent = error.message;
+                        msgObj.className = "text-danger";
+                    })
+                    .finally(() => {
+                        if (icon) icon.className = "fas fa-search";
+                    });
+            });
+        }
+    });
 
-function toggleUrlPersonalizada() {
-const select = document.getElementById('tIntegracao');
-const divUrl = document.getElementById('divUrlCustomizada');
-if(select && divUrl) {
-divUrl.style.display = (select.value === 'OUTROS') ? 'block' : 'none';
-}
-}
+    function toggleUrlPersonalizada() {
+        const select = document.getElementById('tIntegracao');
+        const divUrl = document.getElementById('divUrlCustomizada');
+        const divLoggi = document.getElementById('divApiLoggi');
+        if (select) {
+            if (divUrl) divUrl.style.display = (select.value === 'OUTROS') ? 'block' : 'none';
+            if (divLoggi) divLoggi.style.display = (select.value === 'LOGGI') ? 'block' : 'none';
+        }
+    }
 </script>
 
 </html>

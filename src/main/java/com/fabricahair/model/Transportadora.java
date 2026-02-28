@@ -28,7 +28,25 @@ public class Transportadora {
     @Builder.Default
     private TipoIntegracao tipoIntegracao = TipoIntegracao.NENHUM;
 
+    private String nomeIntegracao;
     private String urlRastreioPadrao;
+    private Integer prazoEntregaPadrao;
+
+    @Column(precision = 10, scale = 2)
+    private java.math.BigDecimal taxaValorProduto;
+
+    @Column(precision = 10, scale = 2)
+    private java.math.BigDecimal taxaAdicionalPedido;
+
+    @Column(precision = 10, scale = 2)
+    private java.math.BigDecimal taxaValorFrete;
+
+    @Builder.Default
+    private boolean permiteColeta = false;
+
+    // Campos específicos para API da Loggi
+    private String loggiEmail;
+    private String loggiApiKey;
 
     @Builder.Default
     private boolean ativo = true;
