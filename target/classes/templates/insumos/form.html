@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle=${modoEdicao ? 'Editar Insumo' : 'Novo Insumo'},
+    activePage='insumos',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{::script}
+)}">
+<main>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/web/estoque/insumos">Insumos</a></li>
+            <li class="breadcrumb-item active" th:text="${modoEdicao ? 'Editar' : 'Novo Insumo'}">Novo</li>
+        </ol>
+    </nav>
+
+    <form th:action="@{/web/estoque/insumos/salvar}" method="post" th:object="${insumo}">
+        <input type="hidden" th:field="*{id}">
+
+        <div class="row g-3">
+            <!-- PRINCIPAL -->
+            <div class="col-md-8">
+                <div class="card mb-3">
+                    <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i class="fas fa-flask me-2 text-primary"></i>Identificação do Insumo</span></div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Nome / Descrição <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" th:field="*{nome}" placeholder="Ex: Queratina Hidrolisada, Óleo de Argan, Sulfato de Sódio" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">SKU / Código</label>
+                                <input type="text" class="form-control" th:field="*{sku}" placeholder="INS-001">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Unidade de Medida</label>
+                                <select class="form-select" th:field="*{unidade}">
+                                    <option value="">Selecione</option>
+                                    <option value="KG">KG — Quilograma</option>
+                                    <option value="G">G — Grama</option>
+                                    <option value="L">L — Litro</option>
+                                    <option value="ML">ML — Mililitro</option>
+                                    <option value="UN">UN — Unidade</option>
+                                    <option value="CX">CX — Caixa</option>
+                                    <option value="PCT">PCT — Pacote</option>
+                                    <option value="FRASCO">FRASCO</option>
+                                    <option value="TAMBOR">TAMBOR</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Fornecedor</label>
+                                <select class="form-select" name="fornecedorId">
+                                    <option value="">Nenhum</option>
+                                    <option th:each="f : ${fornecedores}"
+                                            th:value="${f.id}"
+                                            th:text="${f.razaoSocial}"
+                                            th:selected="${insumo.fornecedor != null and insumo.fornecedor.id == f.id}">
+                                        Fornecedor
+                                    </option>
+                                </select>
+                                <small class="text-muted"><a href="/web/fornecedores/novo" target="_blank">+ Novo fornecedor</a></small>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Observações</label>
+                                <textarea class="form-control" th:field="*{descricao}" rows="2" placeholder="Informações adicionais sobre o insumo..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ESTOQUE -->
+                <div class="card">
+                    <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i class="fas fa-boxes-stacked me-2" style="color:#06b6d4"></i>Controle de Estoque</span></div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Estoque Atual</label>
+                                <input type="number" class="form-control" th:field="*{estoqueAtual}" step="0.001" min="0" placeholder="0,000">
+                                <small class="text-muted">Quantidade em estoque agora</small>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Estoque Mínimo <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" th:field="*{estoqueMinimo}" step="0.001" min="0" placeholder="0,000">
+                                <small class="text-muted">Alerta abaixo deste valor</small>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Preço Unitário (R$)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text" style="font-size:.8rem">R$</span>
+                                    <input type="number" class="form-control" th:field="*{precoUnitario}" step="0.0001" min="0" placeholder="0,0000">
+                                </div>
+                                <small class="text-muted">Custo de aquisição por unidade</small>
+                            </div>
+                        </div>
+
+                        <!-- VISUAL DE NÍVEL -->
+                        <div class="mt-3 p-3 rounded" style="background:#f8fafc">
+                            <div class="d-flex justify-content-between mb-1" style="font-size:.75rem;color:#64748b">
+                                <span>Nível de estoque</span>
+                                <span id="nivelTexto">—</span>
+                            </div>
+                            <div class="progress" style="height:8px;border-radius:4px">
+                                <div class="progress-bar" id="nivelBar" role="progressbar" style="width:0%;background:#10b981"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LATERAL -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-floppy-disk me-2"></i>
+                                <span th:text="${modoEdicao ? 'Salvar Alterações' : 'Cadastrar Insumo'}">Salvar</span>
+                            </button>
+                            <a href="/web/estoque/insumos" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Voltar
+                            </a>
+                        </div>
+                        <hr>
+                        <div style="font-size:.78rem;color:#64748b">
+                            <p class="mb-2"><i class="fas fa-lightbulb text-warning me-1"></i><strong>Dica:</strong> Configure o estoque mínimo para receber alertas automáticos no dashboard quando precisar repor.</p>
+                            <p class="mb-0"><i class="fas fa-link text-info me-1"></i>O insumo será vinculado às <strong>Fichas Técnicas</strong> nos módulos de produção.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</main>
+<script>
+    function atualizarNivel() {
+        const atual = parseFloat(document.querySelector('[name="estoqueAtual"]')?.value) || 0;
+        const minimo = parseFloat(document.querySelector('[name="estoqueMinimo"]')?.value) || 0;
+        const bar = document.getElementById('nivelBar');
+        const txt = document.getElementById('nivelTexto');
+        if (minimo === 0) { bar.style.width = '100%'; bar.style.background = '#10b981'; txt.textContent = 'Mínimo não definido'; return; }
+        const pct = Math.min((atual / (minimo * 2)) * 100, 100);
+        bar.style.width = pct + '%';
+        if (atual <= minimo) {
+            bar.style.background = '#ef4444';
+            txt.textContent = '⚠ Crítico — ' + atual + ' / mín ' + minimo;
+        } else if (atual <= minimo * 1.5) {
+            bar.style.background = '#f59e0b';
+            txt.textContent = 'Atenção — ' + atual + ' / mín ' + minimo;
+        } else {
+            bar.style.background = '#10b981';
+            txt.textContent = 'OK — ' + atual + ' / mín ' + minimo;
+        }
+    }
+    document.querySelector('[name="estoqueAtual"]')?.addEventListener('input', atualizarNivel);
+    document.querySelector('[name="estoqueMinimo"]')?.addEventListener('input', atualizarNivel);
+    atualizarNivel(); // inicializar com valores já preenchidos (modo edição)
+</script>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Painel Logístico',
+    activePage='painel_logistica',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{}
+)}">
+<main>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Centro de Distribuição</h2>
+            <p class="text-muted">Desempenho de OTIF, Fila de Expedição e Giro de Estoque (Curva ABC).</p>
+        </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white h-100" style="border-radius:16px; border:none">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="text-white-50 fw-bold mb-1">OTIF Global</h6>
+                            <h2 class="mb-0 fw-bold" th:text="${otifPerc} + '%'">0%</h2>
+                        </div>
+                        <div
+                            style="background:rgba(255,255,255,0.2);width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-white-50" style="font-size:0.8rem">
+                        Pedidos entregues pontualmente vs. Total.
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100" style="border-radius:16px; border-left:4px solid #f59e0b; background:#fffbeb">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="text-muted fw-bold mb-1">Faturamento Pendente de Envio</h6>
+                            <h2 class="mb-0 fw-bold text-dark" th:text="${faturados.size()}">0</h2>
+                        </div>
+                        <div style="color:#d97706;font-size:1.8rem">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-muted" style="font-size:0.8rem">
+                        Pedidos FATURADOS aguardando embarque.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- COLUNA 1: PEDIDOS FATURADOS (EXPEDIÇÃO) -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm" style="border-radius:16px; border:none">
+                <div class="card-header bg-white border-0 pt-4 pb-0">
+                    <h5 class="fw-bold"><i class="fas fa-truck-loading me-2 text-warning"></i>Fila de Expedição
+                        (Faturados)</h5>
+                </div>
+                <div class="card-body p-0 mt-3">
+                    <div th:if="${faturados.empty}" class="text-center py-5 text-muted">
+                        <i class="fas fa-check-circle fs-1 mb-2 text-success" style="opacity:0.3"></i>
+                        <p class="mb-0">Nenhum pedido aguardando expedição.</p>
+                    </div>
+                    <div class="list-group list-group-flush" th:if="${!faturados.empty}">
+                        <a th:href="@{/web/pedidos/{id}(id=${p.id})}" th:each="p : ${faturados}"
+                            class="list-group-item list-group-item-action p-3" style="border-left:4px solid #f59e0b">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1 fw-bold" style="font-family:monospace; color:#1e40af"
+                                        th:text="${p.numeroPedido}">PV-001</h6>
+                                    <small class="text-muted" th:text="${p.cliente?.razaoSocial}">Cliente XYZ</small>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted d-block" style="font-size:0.75rem">Previsão</small>
+                                    <span class="fw-bold"
+                                        th:classappend="${p.dataPrevisaoEntrega != null and p.dataPrevisaoEntrega.isBefore(#temporals.createToday())} ? 'text-danger' : 'text-dark'"
+                                        th:text="${p.dataPrevisaoEntrega != null ? #temporals.format(p.dataPrevisaoEntrega, 'dd/MM/yyyy') : 'Sem Previsão'}">10/10/2026</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLUNA 2: CURVA ABC DE PRODUTOS -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm" style="border-radius:16px; border:none">
+                <div class="card-header bg-white border-0 pt-4 pb-0">
+                    <h5 class="fw-bold"><i class="fas fa-chart-pie me-2 text-success"></i>Giro de Estoque (Curva ABC -
+                        30 dias)</h5>
+                </div>
+                <div class="table-responsive mt-3">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead style="background:#f8fafc">
+                            <tr>
+                                <th class="ps-3">Produto</th>
+                                <th class="text-end">Vol. Vendido</th>
+                                <th class="text-center">Curva</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item : ${curvaAbc}">
+                                <td class="ps-3">
+                                    <div class="fw-bold text-dark" style="font-size:0.85rem"
+                                        th:text="${item.produto.nome}">Produto</div>
+                                    <small class="text-muted"
+                                        th:text="'Estoque Físico: ' + ${item.produto.estoqueAtual ?: 0}">Estoque:
+                                        100</small>
+                                </td>
+                                <td class="text-end fw-bold" th:text="${item.volume}">0</td>
+                                <td class="text-center">
+                                    <span th:if="${item.curva == 'A'}" class="badge"
+                                        style="background:#dcfce7;color:#166534;font-size:0.8rem;border:1px solid #bbf7d0">Curva
+                                        A</span>
+                                    <span th:if="${item.curva == 'B'}" class="badge"
+                                        style="background:#fef9c3;color:#854d0e;font-size:0.8rem;border:1px solid #fef08a">Curva
+                                        B</span>
+                                    <span th:if="${item.curva == 'C'}" class="badge"
+                                        style="background:#f1f5f9;color:#475569;font-size:0.8rem;border:1px solid #e2e8f0">Curva
+                                        C</span>
+                                </td>
+                            </tr>
+                            <tr th:if="${curvaAbc.empty}">
+                                <td colspan="3" class="text-center py-4 text-muted">Ainda não há dados de vendas nos
+                                    últimos 30 dias para gerar a curva.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+</html>

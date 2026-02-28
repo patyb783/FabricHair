@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Lotes de Produção',
+    activePage='lotes',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{}
+)}">
+<main>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item active">Lotes</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span style="font-weight:600;font-size:1rem"><i class="fas fa-boxes-stacked text-primary me-2"></i>Controle
+                de Lotes</span>
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${lotes == null or lotes.isEmpty()}" class="text-center p-5 text-muted">
+                <i class="fas fa-box-open mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
+                <h5>Nenhum lote registrado</h5>
+                <p>Os lotes gerados pelas Ordens de Produção aparecerão aqui.</p>
+            </div>
+
+            <div class="table-responsive" th:unless="${lotes == null or lotes.isEmpty()}">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nº Lote</th>
+                            <th>Produto</th>
+                            <th>Validade</th>
+                            <th>Qtd Original</th>
+                            <th>Qtd Atual</th>
+                            <th>OP Referência</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="lote : ${lotes}">
+                            <td class="fw-bold text-primary" th:text="${lote.numeroLote}">LOTE-001</td>
+                            <td th:text="${lote.produto.nome}">Produto X</td>
+                            <td th:text="${#temporals.format(lote.dataValidade, 'dd/MM/yyyy')}">Validade</td>
+                            <td th:text="${lote.quantidade}">0</td>
+                            <td class="fw-bold" th:text="${lote.quantidadeDisponivel}">0</td>
+                            <td th:text="${lote.ordemProducao != null ? lote.ordemProducao.numeroOp : '-'}">OP-001</td>
+                            <td>
+                                <span class="badge"
+                                    th:classappend="${lote.status.name() == 'APROVADO'} ? 'bg-success' : (${lote.status.name() == 'QUARENTENA'} ? 'bg-warning' : 'bg-danger')"
+                                    th:text="${lote.status}">STATUS</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+</html>

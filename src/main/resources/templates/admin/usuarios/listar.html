@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Gerenciamento de Usuários',
+    activePage='usuarios',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{}
+)}">
+<main>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item active">Usuários</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span style="font-weight:600;font-size:1rem"><i class="fas fa-users-gear text-primary me-2"></i>Usuários do
+                Sistema</span>
+            <button class="btn btn-sm btn-primary" onclick="alert('Cadastro de usuários será implementado em breve!')">
+                <i class="fas fa-plus me-1"></i>Novo Usuário
+            </button>
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${usuarios == null or usuarios.isEmpty()}" class="text-center p-5 text-muted">
+                <i class="fas fa-users mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
+                <h5>Nenhum usuário registrado</h5>
+            </div>
+
+            <div class="table-responsive" th:unless="${usuarios == null or usuarios.isEmpty()}">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>E-mail</th>
+                            <th>Papel (Role)</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="u : ${usuarios}">
+                            <td class="text-muted" th:text="${u.id}">1</td>
+                            <td class="fw-bold" th:text="${u.username}">admin</td>
+                            <td th:text="${u.email ?: '-'}">admin@empresa.com</td>
+                            <td>
+                                <span class="badge bg-secondary" th:text="${u.role}">ADMIN</span>
+                            </td>
+                            <td>
+                                <span class="badge" th:classappend="${u.ativo} ? 'bg-success' : 'bg-danger'"
+                                    th:text="${u.ativo ? 'Ativo' : 'Inativo'}">Ativo</span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-secondary" title="Editar"
+                                    onclick="alert('Edição em breve!')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Insumos e Matérias-Primas',
+    activePage='insumos',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{::script}
+)}">
+<main>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item">Estoque</li>
+            <li class="breadcrumb-item active">Insumos</li>
+        </ol>
+    </nav>
+
+    <div th:if="${sucesso}" class="alert alert-success mb-3">
+        <i class="fas fa-check-circle me-2"></i><span th:text="${sucesso}"></span>
+    </div>
+    <div th:if="${erro}" class="alert alert-danger mb-3">
+        <i class="fas fa-exclamation-circle me-2"></i><span th:text="${erro}"></span>
+    </div>
+
+    <!-- ALERTA DE ESTOQUE CRÍTICO -->
+    <div th:if="${alertas != null and alertas > 0}"
+         class="alert alert-warning d-flex align-items-center gap-3 mb-3" style="border-radius:14px">
+        <div style="font-size:1.5rem"><i class="fas fa-triangle-exclamation"></i></div>
+        <div>
+            <strong th:text="${alertas + ' insumo(s) abaixo do estoque mínimo!'}">3 insumos abaixo do mínimo!</strong>
+            <div style="font-size:.8rem">Verifique os itens em vermelho na tabela abaixo e entre em contato com os fornecedores.</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <div>
+                <span style="font-weight:700;font-size:.95rem"><i class="fas fa-flask me-2 text-primary"></i>Insumos e Matérias-Primas</span>
+                <span class="text-muted ms-2" style="font-size:.8rem" th:text="'(' + ${#lists.size(insumos)} + ' cadastrados)'"></span>
+            </div>
+            <div class="d-flex gap-2">
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-sm btn-outline-secondary active" onclick="mostrarTodos(this)">Todos</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="mostrarCriticos(this)">
+                        <i class="fas fa-triangle-exclamation me-1"></i>Críticos
+                        <span th:if="${alertas > 0}" class="badge text-bg-danger ms-1" th:text="${alertas}">0</span>
+                    </button>
+                </div>
+                <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Buscar insumo..." style="width:200px" onkeyup="filtrar()">
+                <a href="/web/estoque/insumos/novo" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus me-1"></i> Novo Insumo
+                </a>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${insumos == null or insumos.isEmpty()}" class="text-center py-5 text-muted">
+                <i class="fas fa-flask d-block mb-3" style="font-size:3rem;opacity:.2"></i>
+                <p>Nenhum insumo cadastrado ainda.</p>
+                <a href="/web/estoque/insumos/novo" class="btn btn-primary btn-sm">Cadastrar primeiro insumo</a>
+            </div>
+            <table class="table mb-0" id="tabelaInsumos" th:if="${insumos != null and !insumos.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>Insumo</th>
+                        <th>SKU</th>
+                        <th>Fornecedor</th>
+                        <th>Unidade</th>
+                        <th class="text-end">Estoque Atual</th>
+                        <th class="text-end">Estoque Mínimo</th>
+                        <th class="text-end">Preço Unit.</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="ins : ${insumos}"
+                        th:classappend="${ins.estoqueAtual != null and ins.estoqueMinimo != null and ins.estoqueAtual.compareTo(ins.estoqueMinimo) <= 0} ? 'critico' : ''"
+                        th:style="${ins.estoqueAtual != null and ins.estoqueMinimo != null and ins.estoqueAtual.compareTo(ins.estoqueMinimo) <= 0} ? 'background:#fffbeb' : ''">
+                        <td>
+                            <div style="font-weight:600" th:text="${ins.nome}">Insumo</div>
+                            <div style="font-size:.73rem;color:#94a3b8" th:text="${ins.descricao ?: ''}"></div>
+                        </td>
+                        <td style="font-family:monospace;font-size:.82rem" th:text="${ins.sku ?: '—'}">SKU</td>
+                        <td>
+                            <span th:if="${ins.fornecedor != null}" th:text="${ins.fornecedor.razaoSocial}">Fornecedor</span>
+                            <span th:unless="${ins.fornecedor != null}" class="text-muted">—</span>
+                        </td>
+                        <td th:text="${ins.unidade ?: '—'}">UN</td>
+                        <td class="text-end">
+                            <span th:classappend="${ins.estoqueAtual != null and ins.estoqueMinimo != null and ins.estoqueAtual.compareTo(ins.estoqueMinimo) <= 0} ? 'text-danger fw-bold' : 'text-success fw-bold'"
+                                  th:text="${ins.estoqueAtual ?: '0'}">0</span>
+                        </td>
+                        <td class="text-end text-muted" th:text="${ins.estoqueMinimo ?: '0'}">0</td>
+                        <td class="text-end" style="font-size:.85rem">
+                            <span th:if="${ins.precoUnitario != null}">
+                                R$ <span th:text="${#numbers.formatDecimal(ins.precoUnitario, 1, 4)}">0,0000</span>
+                            </span>
+                            <span th:unless="${ins.precoUnitario != null}" class="text-muted">—</span>
+                        </td>
+                        <td class="text-center">
+                            <span th:if="${ins.estoqueAtual != null and ins.estoqueMinimo != null and ins.estoqueAtual.compareTo(ins.estoqueMinimo) <= 0}"
+                                  class="badge-status" style="background:#fef3c7;color:#92400e">
+                                <i class="fas fa-triangle-exclamation me-1"></i>Crítico
+                            </span>
+                            <span th:unless="${ins.estoqueAtual != null and ins.estoqueMinimo != null and ins.estoqueAtual.compareTo(ins.estoqueMinimo) <= 0}"
+                                  class="badge-status" style="background:#f0fdf4;color:#16a34a">
+                                <i class="fas fa-check me-1"></i>OK
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex gap-1 justify-content-center">
+                                <a th:href="@{/web/estoque/insumos/{id}/editar(id=${ins.id})}" class="btn btn-sm btn-outline-secondary" title="Editar">
+                                    <i class="fas fa-pen-to-square"></i>
+                                </a>
+                                <button class="btn btn-sm btn-outline-danger"
+                                        th:onclick="'confirmarExclusao(' + ${ins.id} + ', \'' + ${ins.nome} + '\')'" title="Remover">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal confirm -->
+    <div class="modal fade" id="modalExcluir" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content" style="border-radius:16px;border:none">
+                <div class="modal-body text-center p-4">
+                    <i class="fas fa-trash text-danger mb-3" style="font-size:2rem"></i>
+                    <h6 class="fw-bold">Remover insumo?</h6>
+                    <p id="nomeExcluir" class="text-muted" style="font-size:.85rem"></p>
+                    <div class="d-flex gap-2 justify-content-center mt-3">
+                        <button class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form id="formExcluir" method="post">
+                            <button type="submit" class="btn btn-sm btn-danger">Remover</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    function filtrar() {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        document.querySelectorAll('#tabelaInsumos tbody tr').forEach(tr => {
+            tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+        });
+    }
+    function mostrarTodos(btn) {
+        toggleBtn(btn);
+        document.querySelectorAll('#tabelaInsumos tbody tr').forEach(tr => tr.style.display = '');
+    }
+    function mostrarCriticos(btn) {
+        toggleBtn(btn);
+        document.querySelectorAll('#tabelaInsumos tbody tr').forEach(tr => {
+            tr.style.display = tr.classList.contains('critico') ? '' : 'none';
+        });
+    }
+    function toggleBtn(btn) {
+        document.querySelectorAll('.btn-group button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+    function confirmarExclusao(id, nome) {
+        document.getElementById('nomeExcluir').textContent = nome;
+        document.getElementById('formExcluir').action = '/web/estoque/insumos/' + id + '/excluir';
+        new bootstrap.Modal(document.getElementById('modalExcluir')).show();
+    }
+</script>
+</html>

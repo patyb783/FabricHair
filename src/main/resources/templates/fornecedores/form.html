@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle=${modoEdicao ? 'Editar Fornecedor' : 'Novo Fornecedor'},
+    activePage='fornecedores',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{::script}
+)}">
+<main>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/web/fornecedores">Fornecedores</a></li>
+            <li class="breadcrumb-item active" th:text="${modoEdicao ? 'Editar' : 'Novo Fornecedor'}">Novo</li>
+        </ol>
+    </nav>
+
+    <form th:action="@{/web/fornecedores/salvar}" method="post" th:object="${fornecedor}">
+        <input type="hidden" th:field="*{id}">
+        <div class="row g-3">
+            <div class="col-md-8">
+                <div class="card mb-3">
+                    <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i
+                                class="fas fa-building me-2 text-primary"></i>Dados da Empresa</span></div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Razão Social <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" th:field="*{razaoSocial}"
+                                    placeholder="Nome da empresa fornecedora" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">CNPJ</label>
+                                <input type="text" class="form-control" th:field="*{cnpj}" id="cnpj"
+                                    placeholder="00.000.000/0000-00" maxlength="18">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Contato (Nome)</label>
+                                <input type="text" class="form-control" th:field="*{contato}"
+                                    placeholder="Nome do responsável">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Telefone</label>
+                                <input type="text" class="form-control" th:field="*{telefone}" id="telefone"
+                                    placeholder="(00) 00000-0000">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">E-mail</label>
+                                <input type="email" class="form-control" th:field="*{email}"
+                                    placeholder="contato@empresa.com.br">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i
+                                class="fas fa-map-marker-alt me-2 text-success"></i>Endereço</span></div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Logradouro</label>
+                                <input type="text" class="form-control" th:field="*{endereco}"
+                                    placeholder="Rua, Avenida, etc.">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">Cidade</label>
+                                <input type="text" class="form-control" th:field="*{cidade}" placeholder="Cidade">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Estado</label>
+                                <select class="form-select" th:field="*{estado}">
+                                    <option value="">UF</option>
+                                    <option
+                                        th:each="uf : ${ {'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'} }"
+                                        th:value="${uf}" th:text="${uf}">UF</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-floppy-disk me-2"></i>
+                                <span
+                                    th:text="${modoEdicao ? 'Salvar Alterações' : 'Cadastrar Fornecedor'}">Salvar</span>
+                            </button>
+                            <a href="/web/fornecedores" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Voltar
+                            </a>
+                        </div>
+                        <hr>
+                        <div class="text-muted" style="font-size:.78rem">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Ao vincular um fornecedor aos insumos, o sistema saberá de quem comprar quando o estoque
+                            estiver abaixo do mínimo.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</main>
+<script>
+    // Máscara CNPJ
+    document.getElementById('cnpj')?.addEventListener('input', function () {
+        let v = this.value.replace(/\D/g, '');
+        v = v.slice(0, 14);
+        if (v.length > 12) v = v.slice(0, 2) + '.' + v.slice(2, 5) + '.' + v.slice(5, 8) + '/' + v.slice(8, 12) + '-' + v.slice(12);
+        else if (v.length > 8) v = v.slice(0, 2) + '.' + v.slice(2, 5) + '.' + v.slice(5, 8) + '/' + v.slice(8);
+        else if (v.length > 5) v = v.slice(0, 2) + '.' + v.slice(2, 5) + '.' + v.slice(5);
+        else if (v.length > 2) v = v.slice(0, 2) + '.' + v.slice(2);
+        this.value = v;
+    });
+    // Buscar CNPJ via BrasilAPI
+    document.getElementById('cnpj')?.addEventListener('blur', function () {
+        const cnpj = this.value.replace(/\D/g, '');
+        if (cnpj.length === 14) {
+            const btnSalvar = document.querySelector('button[type="submit"]');
+            const originalBtnHtml = btnSalvar.innerHTML;
+            btnSalvar.disabled = true;
+            btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Buscando CNPJ...';
+
+            fetch('https://brasilapi.com.br/api/cnpj/v1/' + cnpj)
+                .then(r => r.json())
+                .then(d => {
+                    if (d.razao_social) {
+                        document.querySelector('[name="razaoSocial"]').value = d.razao_social || '';
+                        document.querySelector('[name="endereco"]').value = (d.logradouro ? d.logradouro + (d.numero ? ', ' + d.numero : '') : '');
+                        document.querySelector('[name="cidade"]').value = d.municipio || '';
+                        document.querySelector('[name="estado"]').value = d.uf || '';
+                        document.querySelector('[name="telefone"]').value = d.ddd_telefone_1 || '';
+
+                        let telEvent = new Event('input');
+                        let telInput = document.querySelector('[name="telefone"]');
+                        if (telInput) telInput.dispatchEvent(telEvent);
+                    }
+                })
+                .catch(e => console.error("Erro ao buscar CNPJ:", e))
+                .finally(() => {
+                    btnSalvar.disabled = false;
+                    btnSalvar.innerHTML = originalBtnHtml;
+                });
+        }
+    });
+
+    // Máscara telefone
+    document.getElementById('telefone')?.addEventListener('input', function () {
+        let v = this.value.replace(/\D/g, '').slice(0, 11);
+        if (v.length > 6) v = '(' + v.slice(0, 2) + ') ' + v.slice(2, 7) + '-' + v.slice(7);
+        else if (v.length > 2) v = '(' + v.slice(0, 2) + ') ' + v.slice(2);
+        this.value = v;
+    });
+</script>
+
+</html>

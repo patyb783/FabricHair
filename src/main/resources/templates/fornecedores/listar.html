@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Fornecedores',
+    activePage='fornecedores',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{::script}
+)}">
+<main>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item active">Fornecedores</li>
+        </ol>
+    </nav>
+
+    <div th:if="${sucesso}" class="alert alert-success mb-3">
+        <i class="fas fa-check-circle me-2"></i><span th:text="${sucesso}"></span>
+    </div>
+    <div th:if="${erro}" class="alert alert-danger mb-3">
+        <i class="fas fa-exclamation-circle me-2"></i><span th:text="${erro}"></span>
+    </div>
+
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <div>
+                <span style="font-weight:700;font-size:.95rem"><i class="fas fa-truck me-2 text-primary"></i>Fornecedores</span>
+                <span class="text-muted ms-2" style="font-size:.8rem" th:text="'(' + ${#lists.size(fornecedores)} + ' cadastrados)'"></span>
+            </div>
+            <div class="d-flex gap-2">
+                <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Buscar..." style="width:200px" onkeyup="filtrar()">
+                <a href="/web/fornecedores/novo" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus me-1"></i> Novo Fornecedor
+                </a>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${fornecedores == null or fornecedores.isEmpty()}" class="text-center py-5 text-muted">
+                <i class="fas fa-truck d-block mb-3" style="font-size:3rem;opacity:.2"></i>
+                <p>Nenhum fornecedor cadastrado ainda.</p>
+                <a href="/web/fornecedores/novo" class="btn btn-primary btn-sm">Cadastrar primeiro fornecedor</a>
+            </div>
+            <table class="table mb-0" id="tabelaFornecedores" th:if="${fornecedores != null and !fornecedores.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>Fornecedor</th>
+                        <th>CNPJ</th>
+                        <th>Contato</th>
+                        <th>Telefone</th>
+                        <th>Estado</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="f : ${fornecedores}">
+                        <td>
+                            <div style="font-weight:600" th:text="${f.razaoSocial}">Fornecedor</div>
+                            <div style="font-size:.75rem;color:#94a3b8" th:text="${f.email ?: ''}"></div>
+                        </td>
+                        <td style="font-family:monospace;font-size:.82rem">
+                            <span th:if="${f.cnpj != null and f.cnpj.length() == 14}"
+                                  th:text="${f.cnpj.substring(0,2) + '.' + f.cnpj.substring(2,5) + '.' + f.cnpj.substring(5,8) + '/' + f.cnpj.substring(8,12) + '-' + f.cnpj.substring(12)}">00.000.000/0000-00</span>
+                            <span th:unless="${f.cnpj != null and f.cnpj.length() == 14}" th:text="${f.cnpj ?: '—'}">—</span>
+                        </td>
+                        <td th:text="${f.contato ?: '—'}">Contato</td>
+                        <td th:text="${f.telefone ?: '—'}">Telefone</td>
+                        <td>
+                            <span th:if="${f.estado}" class="badge-status" style="background:#f1f5f9;color:#475569" th:text="${f.estado}">SP</span>
+                            <span th:unless="${f.estado}">—</span>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex gap-1 justify-content-center">
+                                <a th:href="@{/web/fornecedores/{id}/editar(id=${f.id})}" class="btn btn-sm btn-outline-secondary" title="Editar">
+                                    <i class="fas fa-pen-to-square"></i>
+                                </a>
+                                <button class="btn btn-sm btn-outline-danger" th:onclick="'confirmarExclusao(' + ${f.id} + ', \'' + ${f.razaoSocial} + '\')'" title="Remover">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal confirm -->
+    <div class="modal fade" id="modalExcluir" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content" style="border-radius:16px;border:none">
+                <div class="modal-body text-center p-4">
+                    <i class="fas fa-trash text-danger mb-3" style="font-size:2rem"></i>
+                    <h6 class="fw-bold">Remover fornecedor?</h6>
+                    <p id="nomeExcluir" class="text-muted" style="font-size:.85rem"></p>
+                    <div class="d-flex gap-2 justify-content-center mt-3">
+                        <button class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form id="formExcluir" method="post">
+                            <button type="submit" class="btn btn-sm btn-danger">Remover</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    function filtrar() {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        document.querySelectorAll('#tabelaFornecedores tbody tr').forEach(tr => {
+            tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+        });
+    }
+    function confirmarExclusao(id, nome) {
+        document.getElementById('nomeExcluir').textContent = nome;
+        document.getElementById('formExcluir').action = '/web/fornecedores/' + id + '/excluir';
+        new bootstrap.Modal(document.getElementById('modalExcluir')).show();
+    }
+</script>
+</html>

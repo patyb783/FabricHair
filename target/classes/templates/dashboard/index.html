@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Dashboard',
+    activePage='dashboard',
+    content=~{::main},
+    extraHead=~{::head},
+    extraScript=~{::script}
+)}">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" rel="stylesheet">
+    <style>
+        .kpi-card { border-radius: 16px; padding: 24px; color: white; position: relative; overflow: hidden; }
+        .kpi-card::before { content: ''; position: absolute; right: -15px; top: -15px; width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,.12); }
+        .kpi-card::after { content: ''; position: absolute; right: 20px; bottom: -20px; width: 60px; height: 60px; border-radius: 50%; background: rgba(255,255,255,.08); }
+        .kpi-blue { background: linear-gradient(135deg, #1e40af, #3b82f6); }
+        .kpi-green { background: linear-gradient(135deg, #065f46, #10b981); }
+        .kpi-orange { background: linear-gradient(135deg, #92400e, #f59e0b); }
+        .kpi-red { background: linear-gradient(135deg, #991b1b, #ef4444); }
+        .kpi-icon { font-size: 1.6rem; margin-bottom: 12px; opacity: .9; }
+        .kpi-value { font-size: 2rem; font-weight: 800; margin-bottom: 4px; }
+        .kpi-label { font-size: .8rem; opacity: .8; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+        .kpi-change { font-size: .75rem; margin-top: 10px; opacity: .7; }
+
+        .activity-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+        .activity-item:last-child { border-bottom: none; }
+        .activity-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: .85rem; flex-shrink: 0; }
+        .activity-text { flex: 1; font-size: .875rem; color: #1e293b; }
+        .activity-text small { display: block; color: #94a3b8; font-size: .75rem; margin-top: 2px; }
+        .activity-time { font-size: .75rem; color: #94a3b8; white-space: nowrap; }
+
+        .alert-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #fef2f2; border-radius: 10px; margin-bottom: 8px; }
+        .alert-item.warn { background: #fffbeb; }
+        .alert-item i { font-size: .9rem; }
+        .alert-item .txt { font-size: .82rem; color: #1e293b; font-weight: 500; }
+        .alert-item .sub { font-size: .73rem; color: #64748b; }
+    </style>
+</head>
+<main>
+    <!-- KPIs -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="kpi-card kpi-blue">
+                <div class="kpi-icon"><i class="fas fa-industry"></i></div>
+                <div class="kpi-value" th:text="${opAbertas ?: 0}">0</div>
+                <div class="kpi-label">OPs em Andamento</div>
+                <div class="kpi-change"><i class="fas fa-arrow-up me-1"></i>Ordens ativas hoje</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="kpi-card kpi-green">
+                <div class="kpi-icon"><i class="fas fa-boxes-stacked"></i></div>
+                <div class="kpi-value" th:text="${lotesProntos ?: 0}">0</div>
+                <div class="kpi-label">Lotes Aprovados</div>
+                <div class="kpi-change"><i class="fas fa-check me-1"></i>Disponíveis para venda</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="kpi-card kpi-orange">
+                <div class="kpi-icon"><i class="fas fa-file-invoice"></i></div>
+                <div class="kpi-value" th:text="${pedidosPendentes ?: 0}">0</div>
+                <div class="kpi-label">Pedidos Pendentes</div>
+                <div class="kpi-change"><i class="fas fa-clock me-1"></i>Aguardando faturamento</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="kpi-card kpi-red">
+                <div class="kpi-icon"><i class="fas fa-triangle-exclamation"></i></div>
+                <div class="kpi-value" th:text="${insumosAbaixoMinimo ?: 0}">0</div>
+                <div class="kpi-label">Insumos Críticos</div>
+                <div class="kpi-change"><i class="fas fa-exclamation me-1"></i>Abaixo do estoque mínimo</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- ALERTAS DE ESTOQUE -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <span class="fw-600" style="font-weight:600;font-size:.9rem"><i class="fas fa-triangle-exclamation text-warning me-2"></i>Alertas de Estoque</span>
+                    <a href="/web/estoque/insumos" class="btn btn-sm btn-outline-secondary">Ver todos</a>
+                </div>
+                <div class="card-body">
+                    <div th:if="${insumosAlerta == null or insumosAlerta.isEmpty()}" class="text-center text-muted py-4" style="font-size:.85rem">
+                        <i class="fas fa-check-circle text-success d-block mb-2" style="font-size:2rem"></i>
+                        Nenhum alerta de estoque
+                    </div>
+                    <div th:each="insumo : ${insumosAlerta}" class="alert-item warn">
+                        <i class="fas fa-flask text-warning"></i>
+                        <div>
+                            <div class="txt" th:text="${insumo.nome}">Insumo</div>
+                            <div class="sub">Estoque: <span th:text="${insumo.estoqueAtual}">0</span> / Mín: <span th:text="${insumo.estoqueMinimo}">0</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÚLTIMAS OPs -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <span style="font-weight:600;font-size:.9rem"><i class="fas fa-industry text-primary me-2"></i>Ordens de Produção Recentes</span>
+                    <a href="/web/producao/ordens" class="btn btn-sm btn-outline-secondary">Ver todas</a>
+                </div>
+                <div class="card-body p-0">
+                    <div th:if="${ultimasOPs == null or ultimasOPs.isEmpty()}" class="text-center text-muted py-4" style="font-size:.85rem">
+                        <i class="fas fa-industry d-block mb-2 text-muted" style="font-size:2rem;opacity:.4"></i>
+                        Nenhuma OP registrada
+                    </div>
+                    <div th:each="op : ${ultimasOPs}" class="activity-item px-3">
+                        <div class="activity-icon" style="background:#eff6ff;color:#3b82f6">
+                            <i class="fas fa-industry"></i>
+                        </div>
+                        <div class="activity-text">
+                            <span th:text="${op.numeroOp}">OP-001</span>
+                            <small th:text="${op.produto?.nome ?: ''}">Produto</small>
+                        </div>
+                        <span class="badge-status"
+                              th:classappend="${op.status?.name() == 'EM_PRODUCAO'} ? 'bg-primary text-white' : (${op.status?.name() == 'FINALIZADA'} ? 'bg-success text-white' : 'bg-secondary text-white')"
+                              th:text="${op.status}">STATUS</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÚLTIMOS PEDIDOS -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <span style="font-weight:600;font-size:.9rem"><i class="fas fa-file-invoice text-success me-2"></i>Pedidos Recentes</span>
+                    <a href="/web/pedidos" class="btn btn-sm btn-outline-secondary">Ver todos</a>
+                </div>
+                <div class="card-body p-0">
+                    <div th:if="${ultimosPedidos == null or ultimosPedidos.isEmpty()}" class="text-center text-muted py-4" style="font-size:.85rem">
+                        <i class="fas fa-file-invoice d-block mb-2 text-muted" style="font-size:2rem;opacity:.4"></i>
+                        Nenhum pedido registrado
+                    </div>
+                    <div th:each="pedido : ${ultimosPedidos}" class="activity-item px-3">
+                        <div class="activity-icon" style="background:#f0fdf4;color:#10b981">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <div class="activity-text">
+                            <span th:text="${pedido.numeroPedido}">PV-001</span>
+                            <small th:text="${pedido.cliente?.nomeFantasia ?: pedido.cliente?.razaoSocial}">Cliente</small>
+                        </div>
+                        <span class="fw-600" style="font-size:.82rem;color:#10b981">
+                            R$ <span th:text="${#numbers.formatDecimal(pedido.valorTotal, 1, 2)}">0,00</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    // Dashboard atualiza KPIs a cada 5min
+    // setTimeout(() => location.reload(), 5 * 60 * 1000);
+</script>
+</html>

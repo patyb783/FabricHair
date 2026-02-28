@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Ordens de Produção',
+    activePage='ordens',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{::script}
+)}">
+<main>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item">Produção</li>
+            <li class="breadcrumb-item active">Ordens de Produção</li>
+        </ol>
+    </nav>
+
+    <div th:if="${sucesso}" class="alert alert-success mb-3">
+        <i class="fas fa-check-circle me-2"></i><span th:text="${sucesso}"></span>
+    </div>
+    <div th:if="${erro}" class="alert alert-danger mb-3">
+        <i class="fas fa-exclamation-circle me-2"></i><span th:text="${erro}"></span>
+    </div>
+
+    <!-- STATUS PILLS -->
+    <div class="d-flex gap-2 mb-3 flex-wrap">
+        <button class="btn btn-sm btn-outline-secondary active" onclick="filtrarStatus('TODOS', this)">Todas</button>
+        <button class="btn btn-sm btn-outline-warning" onclick="filtrarStatus('PLANEJADA', this)">
+            <i class="fas fa-clock me-1"></i>Planejadas
+        </button>
+        <button class="btn btn-sm btn-outline-primary" onclick="filtrarStatus('EM_PRODUCAO', this)">
+            <i class="fas fa-industry me-1"></i>Em Produção
+        </button>
+        <button class="btn btn-sm btn-outline-success" onclick="filtrarStatus('FINALIZADA', this)">
+            <i class="fas fa-check me-1"></i>Finalizadas
+        </button>
+        <button class="btn btn-sm btn-outline-danger" onclick="filtrarStatus('CANCELADA', this)">
+            <i class="fas fa-ban me-1"></i>Canceladas
+        </button>
+        <div class="ms-auto">
+            <a href="/web/producao/ordens/nova" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1"></i>Nova Ordem de Produção
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <div th:if="${ordens == null or ordens.isEmpty()}" class="text-center py-5 text-muted">
+                <i class="fas fa-industry d-block mb-3" style="font-size:3rem;opacity:.2"></i>
+                <p>Nenhuma Ordem de Produção registrada.</p>
+                <a href="/web/producao/ordens/nova" class="btn btn-primary btn-sm">Criar primeira OP</a>
+            </div>
+            <table class="table mb-0" id="tabelaOPs" th:if="${ordens != null and !ordens.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>Nº OP</th>
+                        <th>Produto</th>
+                        <th class="text-end">Qtd. Planejada</th>
+                        <th class="text-end">Qtd. Produzida</th>
+                        <th>Data Início</th>
+                        <th>Data Fim</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="op : ${ordens}" th:data-status="${op.status}">
+                        <td>
+                            <a th:href="@{/web/producao/ordens/{id}(id=${op.id})}"
+                               style="font-weight:700;font-family:monospace;font-size:.875rem;text-decoration:none;color:#3b82f6"
+                               th:text="${op.numeroOp}">OP-001</a>
+                        </td>
+                        <td>
+                            <div style="font-weight:600;font-size:.875rem" th:text="${op.produto?.nome ?: '—'}">Produto</div>
+                            <div style="font-size:.73rem;color:#94a3b8" th:text="${op.produto?.sku ?: ''}"></div>
+                        </td>
+                        <td class="text-end" th:text="${op.quantidadePlanejada ?: '—'}">0</td>
+                        <td class="text-end" th:text="${op.quantidadeProduzida ?: '—'}">0</td>
+                        <td style="font-size:.82rem">
+                            <span th:if="${op.dataInicio != null}"
+                                  th:text="${#temporals.format(op.dataInicio, 'dd/MM/yyyy HH:mm')}">—</span>
+                            <span th:unless="${op.dataInicio != null}" class="text-muted">—</span>
+                        </td>
+                        <td style="font-size:.82rem">
+                            <span th:if="${op.dataFim != null}"
+                                  th:text="${#temporals.format(op.dataFim, 'dd/MM/yyyy HH:mm')}">—</span>
+                            <span th:unless="${op.dataFim != null}" class="text-muted">—</span>
+                        </td>
+                        <td class="text-center">
+                            <span th:switch="${op.status?.name()}">
+                                <span th:case="'PLANEJADA'" class="badge-status" style="background:#fef3c7;color:#92400e"><i class="fas fa-clock me-1"></i>Planejada</span>
+                                <span th:case="'EM_PRODUCAO'" class="badge-status" style="background:#eff6ff;color:#1d4ed8"><i class="fas fa-industry me-1"></i>Em Produção</span>
+                                <span th:case="'FINALIZADA'" class="badge-status" style="background:#f0fdf4;color:#15803d"><i class="fas fa-check me-1"></i>Finalizada</span>
+                                <span th:case="'CANCELADA'" class="badge-status" style="background:#fef2f2;color:#dc2626"><i class="fas fa-ban me-1"></i>Cancelada</span>
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <a th:href="@{/web/producao/ordens/{id}(id=${op.id})}" class="btn btn-sm btn-outline-secondary" title="Ver detalhes">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+<script>
+    function filtrarStatus(status, btn) {
+        document.querySelectorAll('.btn-group-filtro button, .d-flex button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('#tabelaOPs tbody tr').forEach(tr => {
+            const s = tr.getAttribute('data-status');
+            tr.style.display = (status === 'TODOS' || s === status) ? '' : 'none';
+        });
+    }
+</script>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Novo Pedido de Venda',
+    activePage='pedidos',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{::script}
+)}">
+<main>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/web/pedidos">Pedidos de Venda</a></li>
+            <li class="breadcrumb-item active">Novo Pedido</li>
+        </ol>
+    </nav>
+
+    <form action="/web/pedidos/salvar" method="post" id="formPedido">
+        <div class="row g-3">
+            <div class="col-md-8">
+                <!-- CLIENTE -->
+                <div class="card mb-3">
+                    <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i
+                                class="fas fa-building me-2 text-primary"></i>Cliente</span></div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Cliente B2B <span class="text-danger">*</span></label>
+                                <select class="form-select" name="clienteId" id="selectCliente" required
+                                    onchange="atualizarPerfilCliente(this)">
+                                    <option value="">Selecione o cliente...</option>
+                                    <option th:each="c : ${clientes}" th:value="${c.id}"
+                                        th:text="${(c.nomeFantasia ?: c.razaoSocial) + ' — ' + (c.perfilPreco ?: 'Varejo')}"
+                                        th:data-perfil="${c.perfilPreco}">Cliente</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="perfilInfo" style="display:none">
+                                <div class="p-2 rounded" style="background:#eff6ff;font-size:.8rem;color:#1d4ed8">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Perfil: <strong id="perfilTexto"></strong> — os preços serão aplicados
+                                    automaticamente.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ITENS -->
+                <div class="card">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <span style="font-weight:600;font-size:.9rem"><i class="fas fa-box me-2 text-success"></i>Itens
+                            do Pedido</span>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="adicionarItem()">
+                            <i class="fas fa-plus me-1"></i>Adicionar Produto
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="semItens" class="text-center text-muted py-3" style="font-size:.82rem">
+                            <i class="fas fa-box me-1"></i> Nenhum produto adicionado — clique em "Adicionar Produto"
+                        </div>
+                        <div id="listaItens"></div>
+
+                        <!-- Totalizador -->
+                        <div id="totalizador" style="display:none" class="mt-3 pt-3"
+                            style="border-top:2px solid #f1f5f9">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted" style="font-size:.85rem">Total do Pedido</span>
+                                <span style="font-size:1.3rem;font-weight:800;color:#15803d">
+                                    R$ <span id="totalGeral">0,00</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LATERAL -->
+            <div class="col-md-4">
+                <!-- LOGÍSTICA -->
+                <div class="card mb-3" style="border-top:3px solid #6366f1">
+                    <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i
+                                class="fas fa-truck-fast me-2" style="color:#6366f1"></i>Logística</span></div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label" style="font-size:0.85rem;font-weight:600">Previsão de
+                                Entrega</label>
+                            <input type="date" name="dataPrevisaoEntrega" class="form-control form-control-sm" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" style="font-size:0.85rem;font-weight:600">Transportadora</label>
+                            <select class="form-select form-select-sm" name="transportadoraId">
+                                <option value="">(Sem transportadora definida)</option>
+                                <option th:each="t : ${transportadoras}" th:value="${t.id}" th:text="${t.razaoSocial}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" style="font-size:0.85rem;font-weight:600">Valor do Frete
+                                (R$)</label>
+                            <input type="number" name="valorFrete" class="form-control form-control-sm" step="0.01"
+                                min="0" placeholder="0,00">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <label class="form-label" style="font-size:0.85rem;font-weight:600">Observações</label>
+                        <textarea class="form-control" name="observacoes" rows="2"
+                            placeholder="Informações de entrega, referência de pedido do cliente, etc."></textarea>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Criar Pedido (Rascunho)
+                            </button>
+                            <a href="/web/pedidos" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar
+                            </a>
+                        </div>
+                        <hr>
+                        <div class="text-muted" style="font-size:.75rem">
+                            <i class="fas fa-info-circle me-1"></i>
+                            O pedido será salvo como <strong>Rascunho</strong>. Você poderá confirmar, faturar e emitir
+                            NF-e depois.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Select oculto dos produtos para o JS copiar -->
+    <select id="optProdutoSource" style="display:none">
+        <option value="">Selecione o produto...</option>
+        <option th:each="p : ${produtos}" th:value="${p.id}" th:data-varejo="${p.precoVendaVarejo}"
+            th:data-atacado="${p.precoVendaAtacado}" th:data-distribuidor="${p.precoVendaDistribuidor}"
+            th:data-estoque="${p.estoqueAtual}" th:text="${p.nome + ' [Estoque: ' + (p.estoqueAtual ?: 0) + ']'}">
+            Produto</option>
+    </select>
+</main>
+<script>
+    let perfilAtual = 'VAREJO';
+    let totalGeral = 0;
+
+    function atualizarPerfilCliente(sel) {
+        const opt = sel.options[sel.selectedIndex];
+        perfilAtual = opt.getAttribute('data-perfil') || 'VAREJO';
+        const perfilInfo = document.getElementById('perfilInfo');
+        document.getElementById('perfilTexto').textContent = perfilAtual;
+        perfilInfo.style.display = sel.value ? '' : 'none';
+        recalcularTodos();
+    }
+
+    function adicionarItem() {
+        const container = document.getElementById('listaItens');
+        document.getElementById('semItens').style.display = 'none';
+        document.getElementById('totalizador').style.display = '';
+
+        const idx = Date.now();
+        const div = document.createElement('div');
+        div.className = 'item-linha border rounded p-3 mb-2';
+        div.setAttribute('data-idx', idx);
+        div.innerHTML = `
+            <div class="d-flex gap-2 align-items-start">
+                <div style="flex:3">
+                    <label class="form-label" style="font-size:.78rem;margin-bottom:3px">Produto</label>
+                    <select class="form-select form-select-sm produto-select" name="produtoIds" onchange="atualizarPreco(this)">
+                        ${document.getElementById('optProdutoSource').innerHTML}
+                    </select>
+                </div>
+                <div style="flex:1">
+                    <label class="form-label" style="font-size:.78rem;margin-bottom:3px">Qtd</label>
+                    <input type="number" class="form-control form-control-sm qtd-input"
+                           name="quantidades" value="1" min="0.001" step="any" onchange="recalcularItem(this)">
+                </div>
+                <div style="flex:1">
+                    <label class="form-label" style="font-size:.78rem;margin-bottom:3px">Preço Unit.</label>
+                    <div class="preco-unit text-end fw-bold" style="font-size:.9rem;padding-top:6px">R$ 0,00</div>
+                </div>
+                <div style="flex:1">
+                    <label class="form-label" style="font-size:.78rem;margin-bottom:3px">Total</label>
+                    <div class="total-item text-end fw-bold" style="font-size:.9rem;padding-top:6px;color:#15803d">R$ 0,00</div>
+                </div>
+                <div style="padding-top:22px">
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removerItem(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>`;
+        container.appendChild(div);
+    }
+
+    function removerItem(btn) {
+        btn.closest('.item-linha').remove();
+        if (document.querySelectorAll('.item-linha').length === 0) {
+            document.getElementById('semItens').style.display = '';
+            document.getElementById('totalizador').style.display = 'none';
+        }
+        recalcularTotal();
+    }
+
+    function atualizarPreco(sel) {
+        const opt = sel.options[sel.selectedIndex];
+        const linha = sel.closest('.item-linha');
+        let preco = 0;
+        if (perfilAtual === 'ATACADO') preco = parseFloat(opt.getAttribute('data-atacado')) || 0;
+        else if (perfilAtual === 'DISTRIBUIDOR') preco = parseFloat(opt.getAttribute('data-distribuidor')) || 0;
+        else preco = parseFloat(opt.getAttribute('data-varejo')) || 0;
+
+        linha.querySelector('.preco-unit').textContent = 'R$ ' + preco.toFixed(2).replace('.', ',');
+        const qtd = parseFloat(linha.querySelector('.qtd-input').value) || 1;
+        linha.querySelector('.total-item').textContent = 'R$ ' + (preco * qtd).toFixed(2).replace('.', ',');
+        linha.setAttribute('data-preco', preco);
+        recalcularTotal();
+    }
+
+    function recalcularItem(input) {
+        const linha = input.closest('.item-linha');
+        const preco = parseFloat(linha.getAttribute('data-preco')) || 0;
+        const qtd = parseFloat(input.value) || 0;
+        linha.querySelector('.total-item').textContent = 'R$ ' + (preco * qtd).toFixed(2).replace('.', ',');
+        recalcularTotal();
+    }
+
+    function recalcularTodos() {
+        document.querySelectorAll('.item-linha').forEach(linha => {
+            const sel = linha.querySelector('.produto-select');
+            if (sel?.value) atualizarPreco(sel);
+        });
+    }
+
+    function recalcularTotal() {
+        let total = 0;
+        document.querySelectorAll('.item-linha').forEach(linha => {
+            const txt = linha.querySelector('.total-item').textContent;
+            total += parseFloat(txt.replace('R$ ', '').replace(',', '.')) || 0;
+        });
+        document.getElementById('totalGeral').textContent = total.toFixed(2).replace('.', ',');
+    }
+</script>
+
+</html>

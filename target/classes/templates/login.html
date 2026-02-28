@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FabricHair ERP — Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            background: linear-gradient(135deg, #0f1923 0%, #1a2d44 50%, #0f2940 100%);
+        }
+        /* LEFT PANEL */
+        .left-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+        .left-panel::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%23ffffff08' stroke-width='1'%3E%3Crect x='0' y='0' width='40' height='40'/%3E%3Crect x='40' y='0' width='40' height='40'/%3E%3Crect x='0' y='40' width='40' height='40'/%3E%3Crect x='40' y='40' width='40' height='40'/%3E%3C/g%3E%3C/svg%3E");
+        }
+        .brand-logo {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -2px;
+            position: relative;
+        }
+        .brand-logo span { color: #3b82f6; }
+        .brand-tagline {
+            color: rgba(255,255,255,.6);
+            font-size: 1rem;
+            margin-top: 8px;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            position: relative;
+        }
+        .stats-row {
+            display: flex; gap: 30px; margin-top: 60px; position: relative;
+        }
+        .stat-item { text-align: center; color: rgba(255,255,255,.6); }
+        .stat-item .num { font-size: 2rem; font-weight: 700; color: white; display: block; }
+        .stat-item .lbl { font-size: .75rem; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* RIGHT PANEL */
+        .right-panel {
+            width: 480px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 50px;
+        }
+        .login-header h2 { font-size: 1.8rem; font-weight: 700; color: #0f1923; }
+        .login-header p { color: #64748b; margin-top: 6px; font-size: .9rem; }
+
+        .form-label { font-size: .85rem; font-weight: 600; color: #374151; margin-bottom: 6px; }
+        .form-control {
+            height: 52px; border: 2px solid #e5e7eb; border-radius: 12px;
+            font-size: .95rem; padding: 0 16px; transition: border-color .2s;
+        }
+        .form-control:focus { border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59,130,246,.1); }
+
+        .btn-login {
+            height: 52px; background: linear-gradient(135deg, #1e40af, #3b82f6);
+            border: none; border-radius: 12px; color: white;
+            font-weight: 600; font-size: 1rem; width: 100%; margin-top: 8px;
+            transition: transform .15s, box-shadow .15s;
+        }
+        .btn-login:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(59,130,246,.4); color: white; }
+        .btn-login:active { transform: translateY(0); }
+        .btn-login:disabled { opacity: .7; cursor: not-allowed; }
+
+        .divider { display: flex; align-items: center; gap: 12px; margin: 28px 0; }
+        .divider hr { flex: 1; border-color: #e5e7eb; }
+        .divider span { color: #9ca3af; font-size: .8rem; }
+
+        .alert-danger { border-radius: 12px; border: none; background: #fef2f2; color: #dc2626; font-size: .85rem; }
+
+        .footer-note { margin-top: 40px; text-align: center; color: #9ca3af; font-size: .75rem; }
+        .footer-note strong { color: #374151; }
+
+        @media (max-width: 900px) {
+            .left-panel { display: none; }
+            .right-panel { width: 100%; padding: 40px 30px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- LEFT BRANDING PANEL -->
+    <div class="left-panel">
+        <div class="brand-logo">Fabric<span>Hair</span></div>
+        <div class="brand-tagline">ERP Industrial</div>
+        <div class="stats-row">
+            <div class="stat-item"><span class="num">∞</span><span class="lbl">Lotes/Dia</span></div>
+            <div class="stat-item"><span class="num">NF-e</span><span class="lbl">Integrado</span></div>
+            <div class="stat-item"><span class="num">B2B</span><span class="lbl">Vendas</span></div>
+        </div>
+    </div>
+
+    <!-- RIGHT LOGIN PANEL -->
+    <div class="right-panel">
+        <div class="login-header">
+            <h2>Bem-vindo de volta</h2>
+            <p>Faça login para acessar o sistema FabricHair ERP</p>
+        </div>
+
+        <div th:if="${param.error}" class="alert alert-danger mt-4" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            Usuário ou senha inválidos. Tente novamente.
+        </div>
+        <div th:if="${param.logout}" class="alert alert-success mt-4" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            Logout realizado com sucesso.
+        </div>
+        <div id="jsError" class="alert alert-danger mt-4" style="display:none"></div>
+
+        <div class="mt-4">
+            <div class="mb-4">
+                <label class="form-label">Usuário</label>
+                <input type="text" id="username" class="form-control" placeholder="seu.usuario" autocomplete="username">
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Senha</label>
+                <input type="password" id="password" class="form-control" placeholder="••••••••" autocomplete="current-password">
+            </div>
+
+            <button class="btn btn-login mt-3" id="btnLogin" onclick="fazerLogin()">
+                <i class="fas fa-sign-in-alt me-2"></i> Entrar no Sistema
+            </button>
+        </div>
+
+        <div class="footer-note">
+            <strong>FabricHair ERP</strong> — Fábrica e Distribuição de Produtos de Cabelo<br>
+            <span>Sistema de gestão industrial • v1.0</span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
+
+        function fazerLogin() {
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value;
+            const btn = document.getElementById('btnLogin');
+            const err = document.getElementById('jsError');
+            err.style.display = 'none';
+            if (!u || !p) { err.textContent = 'Preencha usuário e senha.'; err.style.display = 'block'; return; }
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Entrando...';
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                credentials: 'include',
+                body: JSON.stringify({username: u, password: p})
+            })
+            .then(async r => { const d = await r.json(); if (!r.ok) throw new Error(d.message || 'Erro.'); return d; })
+            .then(() => { window.location.href = '/dashboard'; })
+            .catch(e => {
+                err.textContent = e.message;
+                err.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i> Entrar no Sistema';
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Painel Fiscal — NF-e',
+    activePage='fiscal',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{::script}
+)}">
+<main>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item active">Fiscal / NF-e</li>
+        </ol>
+    </nav>
+
+    <div th:if="${sucesso}" class="alert alert-success mb-3"><i class="fas fa-check-circle me-2"></i><span th:text="${sucesso}"></span></div>
+    <div th:if="${info}" class="alert alert-info mb-3"><i class="fas fa-info-circle me-2"></i><span th:text="${info}"></span></div>
+    <div th:if="${erro}" class="alert alert-danger mb-3"><i class="fas fa-exclamation-circle me-2"></i><span th:text="${erro}"></span></div>
+
+    <!-- AVISO HOMOLOGAÇÃO -->
+    <div class="alert d-flex gap-3 align-items-center mb-3" style="background:#fdf4ff;border:1.5px solid #e9d5ff;border-radius:14px">
+        <div style="font-size:1.6rem">🧪</div>
+        <div>
+            <strong style="color:#7e22ce">Ambiente de Homologação</strong>
+            <div style="font-size:.82rem;color:#6b21a8">
+                As NF-e emitidas aqui não têm valor fiscal. Para produção, configure <code>FOCUS_NFE_AMBIENTE=producao</code>
+                e <code>FOCUS_NFE_TOKEN</code> nas variáveis de ambiente.
+            </div>
+        </div>
+    </div>
+
+    <!-- SUMÁRIO -->
+    <div class="row g-3 mb-3">
+        <div class="col-md-3">
+            <div class="card text-center p-3">
+                <div style="font-size:1.6rem;font-weight:800;color:#15803d"
+                     th:text="${#lists.size(notas.?[status?.name() == 'AUTORIZADA'])}">0</div>
+                <div style="font-size:.78rem;color:#64748b">Autorizadas</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center p-3">
+                <div style="font-size:1.6rem;font-weight:800;color:#f59e0b"
+                     th:text="${#lists.size(notas.?[status?.name() == 'PROCESSANDO'])}">0</div>
+                <div style="font-size:.78rem;color:#64748b">Processando</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center p-3">
+                <div style="font-size:1.6rem;font-weight:800;color:#dc2626"
+                     th:text="${#lists.size(notas.?[status?.name() == 'ERRO'])}">0</div>
+                <div style="font-size:.78rem;color:#64748b">Com Erro</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center p-3">
+                <div style="font-size:1.6rem;font-weight:800;color:#475569"
+                     th:text="${#lists.size(notas.?[status?.name() == 'CANCELADA'])}">0</div>
+                <div style="font-size:.78rem;color:#64748b">Canceladas</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABELA DE NF-e -->
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <span style="font-weight:700;font-size:.95rem"><i class="fas fa-file-invoice me-2 text-primary"></i>Notas Fiscais Emitidas</span>
+            <a href="/web/pedidos?status=FATURADO" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-receipt me-1"></i>Ver pedidos faturados
+            </a>
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${notas == null or notas.isEmpty()}" class="text-center py-5 text-muted">
+                <i class="fas fa-file-invoice d-block mb-3" style="font-size:3rem;opacity:.2"></i>
+                <p>Nenhuma NF-e emitida ainda.</p>
+                <a href="/web/pedidos" class="btn btn-sm btn-outline-primary">Ver pedidos para faturar</a>
+            </div>
+            <table class="table mb-0" th:if="${notas != null and !notas.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>Referência</th>
+                        <th>Pedido</th>
+                        <th>Cliente</th>
+                        <th>Nº NF-e</th>
+                        <th>Chave de Acesso</th>
+                        <th>Emissão</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="nfe : ${notas}">
+                        <td style="font-family:monospace;font-size:.78rem" th:text="${nfe.referenciaFocus}">REF</td>
+                        <td>
+                            <a th:if="${nfe.pedido != null}"
+                               th:href="@{/web/pedidos/{id}(id=${nfe.pedido.id})}"
+                               style="font-weight:600;font-size:.845rem;text-decoration:none;color:#3b82f6"
+                               th:text="${nfe.pedido.numeroPedido}">PV-001</a>
+                        </td>
+                        <td style="font-size:.83rem">
+                            <span th:if="${nfe.pedido?.cliente != null}"
+                                  th:text="${nfe.pedido.cliente.nomeFantasia ?: nfe.pedido.cliente.razaoSocial}">—</span>
+                        </td>
+                        <td style="font-family:monospace;font-size:.82rem">
+                            <span th:if="${nfe.numeroNfe}" th:text="${nfe.serie + '/' + nfe.numeroNfe}">—</span>
+                            <span th:unless="${nfe.numeroNfe}" class="text-muted">—</span>
+                        </td>
+                        <td>
+                            <span th:if="${nfe.chaveAcesso != null}"
+                                  style="font-family:monospace;font-size:.68rem;word-break:break-all;color:#475569"
+                                  th:text="${nfe.chaveAcesso}">—</span>
+                            <span th:unless="${nfe.chaveAcesso != null}" class="text-muted" style="font-size:.75rem" th:text="${nfe.mensagemSefaz ?: '—'}">—</span>
+                        </td>
+                        <td style="font-size:.8rem"
+                            th:text="${nfe.criadoEm != null ? #temporals.format(nfe.criadoEm, 'dd/MM/yy HH:mm') : '—'}">—</td>
+                        <td class="text-center">
+                            <span th:switch="${nfe.status?.name()}">
+                                <span th:case="'AUTORIZADA'" class="badge-status" style="background:#f0fdf4;color:#15803d"><i class="fas fa-check-circle me-1"></i>Autorizada</span>
+                                <span th:case="'PROCESSANDO'" class="badge-status" style="background:#fffbeb;color:#92400e"><i class="fas fa-spinner fa-spin me-1"></i>Processando</span>
+                                <span th:case="'ERRO'" class="badge-status" style="background:#fef2f2;color:#dc2626"><i class="fas fa-xmark me-1"></i>Erro</span>
+                                <span th:case="'CANCELADA'" class="badge-status" style="background:#f1f5f9;color:#64748b"><i class="fas fa-ban me-1"></i>Cancelada</span>
+                                <span th:case="'DENEGADA'" class="badge-status" style="background:#fdf4ff;color:#7e22ce"><i class="fas fa-exclamation me-1"></i>Denegada</span>
+                                <span th:case="'PENDENTE'" class="badge-status" style="background:#f8fafc;color:#94a3b8">Pendente</span>
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex gap-1 justify-content-center">
+                                <!-- Consultar status -->
+                                <form th:action="@{/web/fiscal/{id}/consultar(id=${nfe.id})}" method="post" style="display:inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Atualizar status">
+                                        <i class="fas fa-rotate"></i>
+                                    </button>
+                                </form>
+                                <!-- DANFE -->
+                                <a th:if="${nfe.urlDanfe != null}"
+                                   th:href="${nfe.urlDanfe}" target="_blank"
+                                   class="btn btn-sm btn-outline-primary" title="Visualizar DANFE">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                                <!-- XML -->
+                                <a th:if="${nfe.urlXml != null}"
+                                   th:href="${nfe.urlXml}" target="_blank"
+                                   class="btn btn-sm btn-outline-secondary" title="Baixar XML">
+                                    <i class="fas fa-code"></i>
+                                </a>
+                                <!-- Cancelar -->
+                                <button th:if="${nfe.status?.name() == 'AUTORIZADA'}"
+                                        class="btn btn-sm btn-outline-danger" title="Cancelar NF-e"
+                                        th:onclick="'abrirCancelamento(' + ${nfe.id} + ')'">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODAL CANCELAMENTO -->
+    <div class="modal fade" id="modalCancelar" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content" style="border-radius:16px;border:none">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-danger"><i class="fas fa-ban me-2"></i>Cancelar NF-e</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formCancelar" method="post">
+                    <div class="modal-body">
+                        <div class="alert alert-warning" style="border-radius:10px;font-size:.83rem">
+                            <i class="fas fa-triangle-exclamation me-1"></i>
+                            O cancelamento deve ser feito em até <strong>24h</strong> após a autorização. Após isso, é necessário emitir Carta de Correção ou NF-e complementar.
+                        </div>
+                        <label class="form-label fw-bold">Justificativa <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="justificativa" rows="3"
+                                  placeholder="Mínimo 15 caracteres. Ex: Cancelamento por erro no pedido." required minlength="15"></textarea>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
+                        <button type="submit" class="btn btn-danger"><i class="fas fa-ban me-2"></i>Confirmar Cancelamento</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    function abrirCancelamento(id) {
+        document.getElementById('formCancelar').action = '/web/fiscal/' + id + '/cancelar';
+        new bootstrap.Modal(document.getElementById('modalCancelar')).show();
+    }
+</script>
+</html>

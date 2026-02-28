@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Pedidos de Venda',
+    activePage='pedidos',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{::script}
+)}">
+<main>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item active">Pedidos de Venda</li>
+        </ol>
+    </nav>
+
+    <div th:if="${sucesso}" class="alert alert-success mb-3"><i class="fas fa-check-circle me-2"></i><span th:text="${sucesso}"></span></div>
+    <div th:if="${erro}" class="alert alert-danger mb-3"><i class="fas fa-exclamation-circle me-2"></i><span th:text="${erro}"></span></div>
+
+    <!-- FILTROS DE STATUS -->
+    <div class="d-flex gap-2 mb-3 flex-wrap">
+        <button class="btn btn-sm btn-outline-secondary active" onclick="filtrarStatus('TODOS', this)">Todos</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="filtrarStatus('RASCUNHO', this)"><i class="fas fa-pencil me-1"></i>Rascunho</button>
+        <button class="btn btn-sm btn-outline-primary" onclick="filtrarStatus('CONFIRMADO', this)"><i class="fas fa-check me-1"></i>Confirmados</button>
+        <button class="btn btn-sm btn-outline-warning" onclick="filtrarStatus('FATURADO', this)"><i class="fas fa-receipt me-1"></i>Faturados</button>
+        <button class="btn btn-sm btn-outline-success" onclick="filtrarStatus('ENTREGUE', this)"><i class="fas fa-truck me-1"></i>Entregues</button>
+        <button class="btn btn-sm btn-outline-danger" onclick="filtrarStatus('CANCELADO', this)"><i class="fas fa-ban me-1"></i>Cancelados</button>
+        <div class="ms-auto">
+            <a href="/web/pedidos/novo" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>Novo Pedido</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <div th:if="${pedidos == null or pedidos.isEmpty()}" class="text-center py-5 text-muted">
+                <i class="fas fa-file-invoice d-block mb-3" style="font-size:3rem;opacity:.2"></i>
+                <p>Nenhum pedido registrado ainda.</p>
+                <a href="/web/pedidos/novo" class="btn btn-primary btn-sm">Criar primeiro pedido</a>
+            </div>
+            <table class="table mb-0" id="tblPedidos" th:if="${pedidos != null and !pedidos.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>Nº Pedido</th>
+                        <th>Cliente</th>
+                        <th>Data</th>
+                        <th class="text-end">Itens</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">NF-e</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${pedidos}" th:data-status="${p.status}">
+                        <td>
+                            <a th:href="@{/web/pedidos/{id}(id=${p.id})}"
+                               style="font-weight:700;font-family:monospace;font-size:.875rem;text-decoration:none;color:#3b82f6"
+                               th:text="${p.numeroPedido}">PV-001</a>
+                        </td>
+                        <td>
+                            <div style="font-weight:600;font-size:.875rem"
+                                 th:text="${p.cliente?.nomeFantasia ?: p.cliente?.razaoSocial ?: '—'}">Cliente</div>
+                            <div style="font-size:.73rem;color:#94a3b8"
+                                 th:if="${p.cliente?.nomeFantasia != null}"
+                                 th:text="${p.cliente?.razaoSocial}"></div>
+                        </td>
+                        <td style="font-size:.82rem"
+                            th:text="${p.criadoEm != null ? #temporals.format(p.criadoEm, 'dd/MM/yyyy') : '—'}">—</td>
+                        <td class="text-end">
+                            <span th:text="${p.itens != null ? p.itens.size() : 0}">0</span> itens
+                        </td>
+                        <td class="text-end" style="font-weight:700;color:#15803d">
+                            R$ <span th:text="${p.valorTotal != null ? #numbers.formatDecimal(p.valorTotal, 1, 2) : '0,00'}">0,00</span>
+                        </td>
+                        <td class="text-center">
+                            <span th:switch="${p.status?.name()}">
+                                <span th:case="'RASCUNHO'" class="badge-status" style="background:#f1f5f9;color:#475569"><i class="fas fa-pencil me-1"></i>Rascunho</span>
+                                <span th:case="'CONFIRMADO'" class="badge-status" style="background:#eff6ff;color:#1d4ed8"><i class="fas fa-check me-1"></i>Confirmado</span>
+                                <span th:case="'FATURADO'" class="badge-status" style="background:#fef3c7;color:#92400e"><i class="fas fa-receipt me-1"></i>Faturado</span>
+                                <span th:case="'ENTREGUE'" class="badge-status" style="background:#f0fdf4;color:#15803d"><i class="fas fa-truck me-1"></i>Entregue</span>
+                                <span th:case="'CANCELADO'" class="badge-status" style="background:#fef2f2;color:#dc2626"><i class="fas fa-ban me-1"></i>Cancelado</span>
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <span th:if="${p.nfeChaveAcesso != null}" class="badge-status" style="background:#f0fdf4;color:#15803d">
+                                <i class="fas fa-check-circle me-1"></i>Emitida
+                            </span>
+                            <span th:unless="${p.nfeChaveAcesso != null}" class="text-muted" style="font-size:.75rem">—</span>
+                        </td>
+                        <td class="text-center">
+                            <a th:href="@{/web/pedidos/{id}(id=${p.id})}" class="btn btn-sm btn-outline-secondary" title="Ver detalhes">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+<script>
+    function filtrarStatus(status, btn) {
+        document.querySelectorAll('.d-flex button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('#tblPedidos tbody tr').forEach(tr => {
+            const s = tr.getAttribute('data-status');
+            tr.style.display = (status === 'TODOS' || s === status) ? '' : 'none';
+        });
+    }
+</script>
+</html>

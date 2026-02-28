@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Painel da Qualidade',
+    activePage='quarentena',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{::script}
+)}">
+<main>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item active">Qualidade / Quarentena</li>
+        </ol>
+    </nav>
+
+    <div th:if="${sucesso}" class="alert alert-success mb-3"><i class="fas fa-check-circle me-2"></i><span
+            th:text="${sucesso}"></span></div>
+    <div th:if="${erro}" class="alert alert-danger mb-3"><i class="fas fa-exclamation-circle me-2"></i><span
+            th:text="${erro}"></span></div>
+
+    <div class="card border-0 shadow-sm" style="border-radius:16px;">
+        <div class="card-header bg-white d-flex align-items-center"
+            style="border-radius:16px 16px 0 0; border-bottom:1px solid #f1f5f9; padding: 20px 24px;">
+            <div
+                style="width:40px;height:40px;border-radius:10px;background:#fef3c7;color:#d97706;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-right:15px">
+                <i class="fas fa-microscope"></i>
+            </div>
+            <div>
+                <h5 class="mb-0 fw-bold" style="color:#1e293b">Lotes em Quarentena</h5>
+                <small class="text-muted">Aguardando aprovação do Controle de Qualidade para liberação de venda</small>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${lotes == null or lotes.isEmpty()}" class="text-center py-5">
+                <img src="https://cdn-icons-png.flaticon.com/512/3221/3221803.png" alt="Tudo limpo"
+                    style="width:100px;opacity:0.3" class="mb-3">
+                <h5 class="text-muted fw-bold">Nenhum lote na fila</h5>
+                <p class="text-muted mb-0">Não há produtos recém-fabricados aguardando inspeção de qualidade.</p>
+            </div>
+            <table class="table table-hover mb-0" th:if="${lotes != null and !lotes.isEmpty()}">
+                <thead style="background:#f8fafc">
+                    <tr>
+                        <th class="ps-4">Nº Lote</th>
+                        <th>Produto</th>
+                        <th>Criado em</th>
+                        <th>Quantidade</th>
+                        <th>OP Referência</th>
+                        <th class="text-center pe-4">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="lote : ${lotes}">
+                        <td class="ps-4" style="vertical-align: middle;">
+                            <span class="fw-bold" style="font-family:monospace; color:#3b82f6"
+                                th:text="${lote.numeroLote}">LOT-001</span>
+                            <br><span class="badge"
+                                style="background:#fffbeb;color:#b45309;font-size:0.65rem;border:1px solid #fde68a">QUARENTENA</span>
+                        </td>
+                        <td style="vertical-align: middle;">
+                            <span class="fw-bold text-dark" th:text="${lote.produto?.nome}">Produto</span>
+                            <br><small class="text-muted" th:text="${'SKU: ' + lote.produto?.sku}">SKU</small>
+                        </td>
+                        <td style="vertical-align: middle;"
+                            th:text="${lote.criadoEm != null ? #temporals.format(lote.criadoEm, 'dd/MM/yyyy HH:mm') : '—'}">
+                            01/01/2026
+                        </td>
+                        <td style="vertical-align: middle;" class="fw-bold" th:text="${lote.quantidade}">
+                            100
+                        </td>
+                        <td style="vertical-align: middle;">
+                            <a th:if="${lote.ordemProducao != null}"
+                                th:href="@{/web/producao/ordens/{id}(id=${lote.ordemProducao.id})}"
+                                class="text-decoration-none fw-bold" style="font-family:monospace; font-size: 0.85rem">
+                                <i class="fas fa-link me-1"></i><span
+                                    th:text="${lote.ordemProducao.numeroOp}">OP-001</span>
+                            </a>
+                            <span th:unless="${lote.ordemProducao != null}" class="text-muted">—</span>
+                        </td>
+                        <td class="text-center pe-4" style="vertical-align: middle;">
+                            <form th:action="@{/web/qualidade/aprovar/{id}(id=${lote.id})}" method="post"
+                                style="display:inline">
+                                <button type="submit" class="btn btn-sm btn-success px-3 me-2"
+                                    onclick="return confirm('Este lote passou em todas as análises de qualidade? Será liberado para venda agora.')"
+                                    title="Aprovar Lote">
+                                    <i class="fas fa-check-double me-1"></i> Liberar Lote
+                                </button>
+                            </form>
+                            <button class="btn btn-sm btn-outline-danger px-3 btn-reprovar" th:data-id="${lote.id}"
+                                th:data-lote="${lote.numeroLote}" title="Reprovar Lote" data-bs-toggle="modal"
+                                data-bs-target="#modalReprovar">
+                                <i class="fas fa-times me-1"></i> Reprovar
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODAL REPROVAR -->
+    <div class="modal fade" id="modalReprovar" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content" style="border-radius:16px;border:none">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-danger"><i class="fas fa-times-circle me-2"></i>Reprovar Lote
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formReprovar" method="post">
+                    <div class="modal-body">
+                        <p class="mb-3">Você está reprovando o lote <strong id="loteReprovarNome">LOT-123</strong>. Este
+                            produto não será disponibilizado para venda e seu custo total será absorvido como perda
+                            definitiva.</p>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" style="font-size:0.85rem">Justificativa da Reprovação
+                                (<span class="text-danger">*</span>)</label>
+                            <textarea class="form-control" name="justificativa" rows="3"
+                                placeholder="Falta de viscosidade, contaminação microbiológica, etc." required
+                                minlength="10"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Confirmar Reprovação Total</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const btns = document.querySelectorAll('.btn-reprovar');
+        btns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                const lote = this.getAttribute('data-lote');
+                document.getElementById('loteReprovarNome').innerText = lote;
+                document.getElementById('formReprovar').action = '/web/qualidade/reprovar/' + id;
+            });
+        });
+    });
+</script>
+
+</html>

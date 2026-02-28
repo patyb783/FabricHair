@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Transportadoras',
+    activePage='transportadoras',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{}
+)}">
+<main>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Transportadoras</h2>
+            <p class="text-muted">Gerencie os parceiros logísticos para envio de pedidos.</p>
+        </div>
+        <a href="/web/logistica/transportadoras/novo" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nova Transportadora
+        </a>
+    </div>
+
+    <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${sucesso}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${erro}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Razão Social</th>
+                            <th>CNPJ</th>
+                            <th>Telefone</th>
+                            <th>Status</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="t : ${transportadoras}">
+                            <td th:text="${t.id}">1</td>
+                            <td class="fw-bold text-dark" th:text="${t.razaoSocial}">Transportadora XYZ</td>
+                            <td th:text="${t.cnpj}">00.000.000/0001-00</td>
+                            <td th:text="${t.telefone} ?: '—'">—</td>
+                            <td>
+                                <span th:if="${t.ativo}" class="badge bg-success">Ativa</span>
+                                <span th:unless="${t.ativo}" class="badge bg-secondary">Inativa</span>
+                            </td>
+                            <td class="text-end">
+                                <a th:href="@{/web/logistica/transportadoras/{id}/editar(id=${t.id})}"
+                                    class="btn btn-sm btn-outline-primary" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form th:action="@{/web/logistica/transportadoras/{id}/excluir(id=${t.id})}"
+                                    method="post" class="d-inline"
+                                    onsubmit="return confirm('Deseja realmente excluir?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${transportadoras.empty}">
+                            <td colspan="6" class="text-center py-4 text-muted">Ainda não há transportadoras
+                                cadastradas.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+</html>

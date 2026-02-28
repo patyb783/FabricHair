@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle=${transportadora.id == null ? 'Nova Transportadora' : 'Editar Transportadora'},
+    activePage='transportadoras',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{::script}
+)}">
+<main>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 th:text="${transportadora.id == null ? 'Nova Transportadora' : 'Editar Transportadora'}">Transportadora</h2>
+        <a href="/web/logistica/transportadoras" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form th:action="@{/web/logistica/transportadoras/salvar}" th:object="${transportadora}" method="post">
+                <input type="hidden" th:field="*{id}">
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="cnpj" class="form-label">CNPJ</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="cnpj" th:field="*{cnpj}"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="Somente números">
+                            <button class="btn btn-outline-secondary" type="button" id="btnBuscaCnpj">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                        <small class="text-muted" id="msgCnpj"></small>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label for="razaoSocial" class="form-label">Razão Social *</label>
+                        <input type="text" class="form-control" id="razaoSocial" th:field="*{razaoSocial}" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="telefone" class="form-label">Telefone</label>
+                        <input type="text" class="form-control" id="telefone" th:field="*{telefone}">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="email" class="form-label">E-mail</label>
+                        <input type="email" class="form-control" id="email" th:field="*{email}">
+                    </div>
+
+                    <div class="col-md-6 mt-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="ativo" th:field="*{ativo}">
+                            <label class="form-check-label" for="ativo">Transportadora Ativa</label>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Salvar Transportadora
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const btnBusca = document.getElementById("btnBuscaCnpj");
+        if (btnBusca) {
+            btnBusca.addEventListener("click", function () {
+                let cnpjInput = document.getElementById("cnpj").value.replace(/\D/g, '');
+                const msgObj = document.getElementById("msgCnpj");
+                if (cnpjInput.length !== 14) {
+                    msgObj.textContent = "CNPJ inválido (deve conter 14 dígitos).";
+                    msgObj.className = "text-danger";
+                    return;
+                }
+
+                // Add icon spinning
+                const icon = this.querySelector("i");
+                if (icon) icon.className = "fas fa-spinner fa-spin";
+
+                fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjInput}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error("CNPJ não encontrado na Receita Federal");
+                        return response.json();
+                    })
+                    .then(data => {
+                        document.getElementById("razaoSocial").value = data.nome_fantasia || data.razao_social || '';
+                        document.getElementById("telefone").value = data.ddd_telefone_1 || '';
+                        msgObj.textContent = "Dados encontrados com sucesso!";
+                        msgObj.className = "text-success";
+                    })
+                    .catch(error => {
+                        msgObj.textContent = error.message;
+                        msgObj.className = "text-danger";
+                    })
+                    .finally(() => {
+                        if (icon) icon.className = "fas fa-search";
+                    });
+            });
+        }
+    });
+</script>
+
+</html>

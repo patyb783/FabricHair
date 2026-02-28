@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Emitir NF-e',
+    activePage='fiscal',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{::script}
+)}">
+<main>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/web/fiscal">Fiscal / NF-e</a></li>
+            <li class="breadcrumb-item active">Emitir NF-e</li>
+        </ol>
+    </nav>
+
+    <!-- NF-e já existe e está autorizada -->
+    <div th:if="${nfeExistente != null and nfeExistente.status?.name() == 'AUTORIZADA'}" class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex align-items-center gap-3">
+                <div style="font-size:2rem">✅</div>
+                <div>
+                    <div style="font-weight:700;color:#15803d;font-size:1.05rem">NF-e já autorizada!</div>
+                    <div style="font-family:monospace;font-size:.78rem;color:#475569;word-break:break-all"
+                         th:text="${nfeExistente.chaveAcesso}">—</div>
+                    <div class="d-flex gap-2 mt-2">
+                        <a th:if="${nfeExistente.urlDanfe}" th:href="${nfeExistente.urlDanfe}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-file-pdf me-1"></i>DANFE
+                        </a>
+                        <a th:if="${nfeExistente.urlXml}" th:href="${nfeExistente.urlXml}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-code me-1"></i>XML
+                        </a>
+                        <a href="/web/fiscal" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Painel Fiscal
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tela de emissão -->
+    <div th:unless="${nfeExistente != null and nfeExistente.status?.name() == 'AUTORIZADA'}">
+        <!-- Erro anterior -->
+        <div th:if="${nfeExistente != null and nfeExistente.status?.name() == 'ERRO'}" class="alert alert-danger mb-3">
+            <strong>Tentativa anterior com erro:</strong>
+            <span th:text="${nfeExistente.mensagemSefaz}">—</span>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span style="font-weight:700;font-size:.95rem">
+                    <i class="fas fa-file-invoice me-2" style="color:#7e22ce"></i>
+                    Confirmar Emissão de NF-e
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-7">
+                        <!-- Checklist pré-emissão -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">Verificação antes da emissão</h6>
+                            <div class="d-flex flex-column gap-2">
+                                <div class="d-flex align-items-center gap-2 p-3 rounded" style="background:#f8fafc;font-size:.88rem">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span>Pedido faturado — estoque já foi baixado</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 p-3 rounded" style="background:#f8fafc;font-size:.88rem">
+                                    <i class="fas fa-info-circle text-primary"></i>
+                                    <span>Os dados do cliente (CNPJ, endereço) serão usados como destinatário da nota</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 p-3 rounded" style="background:#f8fafc;font-size:.88rem">
+                                    <i class="fas fa-info-circle text-primary"></i>
+                                    <span>O NCM de cada produto será incluído automaticamente</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 p-3 rounded" style="background:#fef3c7;font-size:.88rem">
+                                    <i class="fas fa-triangle-exclamation" style="color:#92400e"></i>
+                                    <span>Em <strong>homologação</strong>, as notas <strong>não têm valor fiscal</strong></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form th:action="@{/web/fiscal/emitir/{id}(id=${pedidoId})}" method="post">
+                            <button type="submit" class="btn btn-primary btn-lg"
+                                    onclick="return confirm('Confirmar emissão da NF-e para este pedido?')">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                Emitir NF-e para o Pedido
+                            </button>
+                            <a href="/web/fiscal" class="btn btn-outline-secondary btn-lg ms-2">Cancelar</a>
+                        </form>
+                    </div>
+
+                    <div class="col-md-5">
+                        <div class="p-3 rounded" style="background:#f8fafc">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-circle-info me-2 text-primary"></i>Sobre o Focus NFe</h6>
+                            <p style="font-size:.82rem;color:#475569">
+                                A emissão é feita via <strong>Focus NFe API</strong>. Após o envio, a SEFAZ pode retornar imediatamente ou
+                                levar alguns minutos para processar.
+                            </p>
+                            <p style="font-size:.82rem;color:#475569">
+                                Use o botão <i class="fas fa-rotate"></i> <strong>Atualizar</strong> no painel fiscal para consultar o
+                                status após o envio.
+                            </p>
+                            <hr style="border-color:#e2e8f0">
+                            <div style="font-size:.78rem;color:#94a3b8">
+                                <strong>Configuração atual:</strong><br>
+                                Ambiente: <code>homologacao</code><br>
+                                CFOP: <code>5101</code> — Venda de produção própria<br>
+                                Regime: <code>Simples Nacional — CSOSN 400</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script></script>
+</html>

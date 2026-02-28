@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Detalhe da OP',
+    activePage='ordens',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{::script}
+)}">
+<main>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/web/producao/ordens">Ordens de Produção</a></li>
+            <li class="breadcrumb-item active" th:text="${op.numeroOp}">OP-001</li>
+        </ol>
+    </nav>
+
+    <div th:if="${sucesso}" class="alert alert-success mb-3"><i class="fas fa-check-circle me-2"></i><span
+            th:text="${sucesso}"></span></div>
+    <div th:if="${erro}" class="alert alert-danger mb-3" style="white-space:pre-line"><i
+            class="fas fa-exclamation-circle me-2"></i><span th:text="${erro}"></span></div>
+
+    <!-- HEADER DA OP -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-3">
+                        <h4 style="font-weight:800;font-family:monospace;margin:0" th:text="${op.numeroOp}">OP-001</h4>
+                        <span th:switch="${op.status?.name()}">
+                            <span th:case="'PLANEJADA'" class="badge-status fs-6"
+                                style="background:#fef3c7;color:#92400e;padding:6px 14px"><i
+                                    class="fas fa-clock me-1"></i>Planejada</span>
+                            <span th:case="'EM_PRODUCAO'" class="badge-status fs-6"
+                                style="background:#eff6ff;color:#1d4ed8;padding:6px 14px"><i
+                                    class="fas fa-industry me-1"></i>Em Produção</span>
+                            <span th:case="'FINALIZADA'" class="badge-status fs-6"
+                                style="background:#f0fdf4;color:#15803d;padding:6px 14px"><i
+                                    class="fas fa-check-circle me-1"></i>Finalizada</span>
+                            <span th:case="'CANCELADA'" class="badge-status fs-6"
+                                style="background:#fef2f2;color:#dc2626;padding:6px 14px"><i
+                                    class="fas fa-ban me-1"></i>Cancelada</span>
+                        </span>
+                    </div>
+                    <div class="mt-2 text-muted" style="font-size:.85rem">
+                        <span th:text="${op.produto?.nome}">Produto</span>
+                        <span th:if="${op.produto?.sku}" class="ms-2 badge"
+                            style="background:#f1f5f9;color:#475569;font-size:.72rem"
+                            th:text="${op.produto.sku}">SKU</span>
+                    </div>
+                </div>
+
+                <!-- AÇÕES POR STATUS -->
+                <div class="d-flex gap-2">
+                    <!-- PLANEJADA: pode iniciar ou cancelar -->
+                    <div th:if="${op.status?.name() == 'PLANEJADA'}">
+                        <form th:action="@{/web/producao/ordens/{id}/iniciar(id=${op.id})}" method="post"
+                            style="display:inline">
+                            <button type="submit" class="btn btn-primary"
+                                onclick="return confirm('Confirmar início da produção? Os insumos serão baixados do estoque.')">
+                                <i class="fas fa-play me-2"></i> Iniciar Produção
+                            </button>
+                        </form>
+                        <form th:action="@{/web/producao/ordens/{id}/cancelar(id=${op.id})}" method="post"
+                            style="display:inline">
+                            <button type="submit" class="btn btn-outline-danger ms-2"
+                                onclick="return confirm('Cancelar esta OP?')">
+                                <i class="fas fa-ban me-2"></i> Cancelar
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- EM PRODUÇÃO: pode finalizar -->
+                    <div th:if="${op.status?.name() == 'EM_PRODUCAO'}">
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalFinalizar">
+                            <i class="fas fa-flag-checkered me-2"></i> Finalizar e Gerar Lote
+                        </button>
+                    </div>
+
+                    <a href="/web/producao/ordens" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Voltar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROGRESS BAR DE FLUXO -->
+    <div class="card mb-3">
+        <div class="card-body py-3">
+            <div class="d-flex align-items-center justify-content-between position-relative">
+                <div style="position:absolute;top:50%;left:10%;right:10%;height:2px;background:#e2e8f0;z-index:0"></div>
+
+                <div th:each="etapa, idx : ${ {{'1','Criada','clock','#fef3c7','#92400e'}, {'2','Em Produção','industry','#eff6ff','#1d4ed8'}, {'3','Lote Gerado','boxes-stacked','#f0fdf4','#15803d'}} }"
+                    class="d-flex flex-column align-items-center gap-2 position-relative" style="z-index:1">
+                    <div th:style="'width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;'
+                         + (${idx.index == 0 or (idx.index == 1 and (op.status?.name() == 'EM_PRODUCAO' or op.status?.name() == 'FINALIZADA')) or (idx.index == 2 and op.status?.name() == 'FINALIZADA')}
+                            ? 'background:' + ${etapa[3]} + ';color:' + ${etapa[4]}
+                            : 'background:#f1f5f9;color:#94a3b8')">
+                        <i th:class="'fas fa-' + ${etapa[2]}"></i>
+                    </div>
+                    <div style="font-size:.75rem;font-weight:600;color:#374151" th:text="${etapa[1]}">Etapa</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- INFO GERAL -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i
+                            class="fas fa-info-circle me-2 text-primary"></i>Informações</span></div>
+                <div class="card-body">
+                    <table class="table table-sm table-borderless" style="font-size:.875rem">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted fw-600" style="width:40%;font-weight:600">Produto</td>
+                                <td th:text="${op.produto?.nome ?: '—'}">—</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-600" style="font-weight:600">Qtd. Planejada</td>
+                                <td th:text="${op.quantidadePlanejada ?: '—'}">—</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-600" style="font-weight:600">Qtd. Produzida</td>
+                                <td>
+                                    <span th:if="${op.quantidadeProduzida != null}"
+                                        style="font-weight:700;color:#15803d"
+                                        th:text="${op.quantidadeProduzida}">—</span>
+                                    <span th:unless="${op.quantidadeProduzida != null}" class="text-muted">—</span>
+                                </td>
+                            </tr>
+                            <tr th:if="${op.quantidadeRefugo != null and op.quantidadeRefugo > 0}">
+                                <td class="text-muted fw-600" style="font-weight:600">Qtd. Refugo</td>
+                                <td><span style="font-weight:700;color:#dc2626"
+                                        th:text="${op.quantidadeRefugo}">0</span> <span th:if="${op.motivoRefugo}"
+                                        class="text-muted" style="font-size:0.75rem"
+                                        th:text="'(' + ${op.motivoRefugo} + ')'"></span></td>
+                            </tr>
+                            <tr th:if="${op.custoUnitario != null}">
+                                <td class="text-muted fw-600" style="font-weight:600">Custo Unit. Real</td>
+                                <td><span style="font-weight:700;color:#1e40af"
+                                        th:text="${'R$ ' + #numbers.formatDecimal(op.custoUnitario, 1, 'POINT', 2, 'COMMA')}">R$
+                                        0,00</span></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-600" style="font-weight:600">Data Início</td>
+                                <td
+                                    th:text="${op.dataInicio != null ? #temporals.format(op.dataInicio, 'dd/MM/yyyy HH:mm') : '—'}">
+                                    —</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-600" style="font-weight:600">Data Fim</td>
+                                <td
+                                    th:text="${op.dataFim != null ? #temporals.format(op.dataFim, 'dd/MM/yyyy HH:mm') : '—'}">
+                                    —</td>
+                            </tr>
+                            <tr th:if="${op.observacoes}">
+                                <td class="text-muted fw-600" style="font-weight:600">Observações</td>
+                                <td th:text="${op.observacoes}">—</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- INSUMOS -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i
+                            class="fas fa-flask me-2 text-success"></i>Insumos da OP</span></div>
+                <div class="card-body p-0">
+                    <div th:if="${op.insumos == null or op.insumos.isEmpty()}" class="text-center py-4 text-muted"
+                        style="font-size:.82rem">
+                        <i class="fas fa-flask me-1"></i> Nenhum insumo vinculado
+                    </div>
+                    <table class="table table-sm mb-0" th:if="${op.insumos != null and !op.insumos.isEmpty()}">
+                        <thead>
+                            <tr>
+                                <th>Insumo</th>
+                                <th class="text-end">Qtd. Necessária</th>
+                                <th class="text-end">Qtd. Usada</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="ins : ${op.insumos}">
+                                <td>
+                                    <div th:text="${ins.insumo?.nome ?: '—'}">Insumo</div>
+                                    <small class="text-muted" th:text="${ins.insumo?.unidade ?: ''}"></small>
+                                </td>
+                                <td class="text-end fw-bold" th:text="${ins.quantidadeNecessaria}">0</td>
+                                <td class="text-end">
+                                    <span th:if="${ins.quantidadeUsada != null}" style="color:#15803d;font-weight:600"
+                                        th:text="${ins.quantidadeUsada}">0</span>
+                                    <span th:unless="${ins.quantidadeUsada != null}" class="text-muted">—</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- LOTES GERADOS -->
+        <div class="col-12" th:if="${op.lotes != null and !op.lotes.isEmpty()}">
+            <div class="card">
+                <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i
+                            class="fas fa-boxes-stacked me-2 text-warning"></i>Lotes Gerados</span></div>
+                <div class="card-body p-0">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Nº Lote</th>
+                                <th>Fabricação</th>
+                                <th>Validade</th>
+                                <th class="text-end">Quantidade</th>
+                                <th class="text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="lote : ${op.lotes}">
+                                <td style="font-family:monospace;font-weight:600" th:text="${lote.numeroLote}">LOT-001
+                                </td>
+                                <td
+                                    th:text="${lote.dataFabricacao != null ? #temporals.format(lote.dataFabricacao, 'dd/MM/yyyy') : '—'}">
+                                    —</td>
+                                <td>
+                                    <span th:if="${lote.dataValidade != null}"
+                                        th:classappend="${lote.dataValidade.isBefore(#temporals.createToday().plusDays(30))} ? 'text-danger fw-bold' : ''"
+                                        th:text="${#temporals.format(lote.dataValidade, 'dd/MM/yyyy')}">—</span>
+                                    <span th:unless="${lote.dataValidade != null}" class="text-muted">—</span>
+                                </td>
+                                <td class="text-end fw-bold" th:text="${lote.quantidade}">0</td>
+                                <td class="text-center">
+                                    <span th:switch="${lote.status?.name()}">
+                                        <span th:case="'APROVADO'" class="badge-status"
+                                            style="background:#f0fdf4;color:#15803d">Aprovado</span>
+                                        <span th:case="'EM_QUARENTENA'" class="badge-status"
+                                            style="background:#fffbeb;color:#92400e">Quarentena</span>
+                                        <span th:case="'REPROVADO'" class="badge-status"
+                                            style="background:#fef2f2;color:#dc2626">Reprovado</span>
+                                        <span th:case="*" class="badge-status" style="background:#f1f5f9;color:#475569"
+                                            th:text="${lote.status}">—</span>
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FINALIZAR OP -->
+    <div class="modal fade" id="modalFinalizar" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content" style="border-radius:16px;border:none">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-flag-checkered me-2 text-success"></i>Finalizar
+                        Produção e Gerar Lote</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/web/producao/ordens/{id}/finalizar(id=${op.id})}" method="post">
+                    <div class="modal-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-600" style="font-weight:600">Quantidade Produzida <span
+                                        class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" name="quantidadeProduzida"
+                                        th:value="${op.quantidadePlanejada}" step="0.001" min="0.001" required>
+                                    <span class="input-group-text">UN</span>
+                                </div>
+                                <small class="text-muted">Planejado: <span
+                                        th:text="${op.quantidadePlanejada}">0</span></small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-600" style="font-weight:600">Validade do Lote</label>
+                                <input type="date" class="form-control" name="validade">
+                            </div>
+                        </div>
+
+                        <div class="card p-3 mb-3" style="background:#f8fafc; border:1px solid #e2e8f0;">
+                            <h6 style="font-size:0.85rem;font-weight:700;color:#475569" class="mb-3"><i
+                                    class="fas fa-trash-alt me-2"></i>Controle de Perdas (Refugo)</h6>
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <label class="form-label" style="font-size:0.75rem">Qtd. Perdida / Refugo</label>
+                                    <input type="number" class="form-control form-control-sm" name="quantidadeRefugo"
+                                        step="0.001" min="0">
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label" style="font-size:0.75rem">Motivo do Refugo</label>
+                                    <input type="text" class="form-control form-control-sm" name="motivoRefugo"
+                                        placeholder="Ex: Borra no fundo do tanque">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card p-3 mb-3" style="background:#fcf8ff; border:1px solid #f3e8ff;">
+                            <h6 style="font-size:0.85rem;font-weight:700;color:#6b21a8" class="mb-3"><i
+                                    class="fas fa-money-bill-wave me-2"></i>Custeio Industrial Rateado</h6>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label" style="font-size:0.75rem">Mão de Obra (R$)</label>
+                                    <input type="number" class="form-control form-control-sm" name="custoMaoDeObra"
+                                        step="0.01" min="0" placeholder="0.00">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" style="font-size:0.75rem">Energia Elétrica / Outros
+                                        (R$)</label>
+                                    <input type="number" class="form-control form-control-sm" name="custoEnergia"
+                                        step="0.01" min="0" placeholder="0.00">
+                                </div>
+                            </div>
+                            <small class="text-muted mt-2" style="font-size:0.7rem">Estes valores serão somados ao custo
+                                dos insumos para formar o <strong>Custo Unitário Real</strong> do produto
+                                acabado.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-600" style="font-weight:600">Observações da OP / Lote</label>
+                            <textarea class="form-control" name="observacoesLote" rows="2"
+                                placeholder="Informações adicionais da produção"></textarea>
+                        </div>
+
+                        <div class="alert alert-warning"
+                            style="border-radius:10px; font-size:0.85rem; background:#fffbeb; color:#92400e; border:1px solid #fde68a;">
+                            <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+                            Ao finalizar OP, o sistema irá:
+                            <ul class="mb-0 mt-1 ps-3">
+                                <li><strong>Calcular o Custeio Real</strong> (Insumos + Mão de Obra + Energia).</li>
+                                <li>Criar o lote como <strong>EM QUARENTENA</strong> aguardando análise no módulo de
+                                    Qualidade.</li>
+                                <li>A quantidade não ficará disponível para venda até aprovação da Qualidade.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check me-2"></i> Confirmar e Gerar Lote
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    // Validar data de validade — deve ser futura
+    document.querySelector('[name="validade"]')?.addEventListener('change', function () {
+        const val = new Date(this.value);
+        const hoje = new Date();
+        if (this.value && val < hoje) {
+            this.setCustomValidity('A data de validade deve ser futura!');
+            this.reportValidity();
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+</script>
+
+</html>

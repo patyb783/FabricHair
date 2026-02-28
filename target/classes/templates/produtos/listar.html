@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Produtos Acabados',
+    activePage='produtos',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{::script}
+)}">
+<main>
+    <!-- BREADCRUMB -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item">Estoque</li>
+            <li class="breadcrumb-item active">Produtos Acabados</li>
+        </ol>
+    </nav>
+
+    <!-- ALERTS -->
+    <div th:if="${sucesso}" class="alert alert-success mb-3">
+        <i class="fas fa-check-circle me-2"></i><span th:text="${sucesso}">Sucesso!</span>
+    </div>
+    <div th:if="${erro}" class="alert alert-danger mb-3">
+        <i class="fas fa-exclamation-circle me-2"></i><span th:text="${erro}">Erro!</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <div>
+                <span style="font-weight:700;font-size:.95rem"><i class="fas fa-spray-can me-2 text-primary"></i>Produtos Acabados</span>
+                <span class="text-muted ms-2" style="font-size:.8rem" th:text="'(' + ${#lists.size(produtos)} + ' produtos)'"></span>
+            </div>
+            <div class="d-flex gap-2">
+                <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Buscar produto..." style="width:220px" onkeyup="filtrar()">
+                <a href="/web/estoque/produtos/novo" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus me-1"></i> Novo Produto
+                </a>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${produtos == null or produtos.isEmpty()}" class="text-center py-5 text-muted">
+                <i class="fas fa-spray-can d-block mb-3" style="font-size:3rem;opacity:.2"></i>
+                <p>Nenhum produto cadastrado ainda.</p>
+                <a href="/web/estoque/produtos/novo" class="btn btn-primary btn-sm">Cadastrar primeiro produto</a>
+            </div>
+            <div th:if="${produtos != null and !produtos.isEmpty()}">
+                <table class="table mb-0" id="tabelaProdutos">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>SKU</th>
+                            <th>NCM</th>
+                            <th>Unidade</th>
+                            <th class="text-end">Estoque</th>
+                            <th class="text-end">Preço Varejo</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p : ${produtos}">
+                            <td>
+                                <div style="font-weight:600;font-size:.875rem" th:text="${p.nome}">Produto</div>
+                                <div style="font-size:.75rem;color:#94a3b8" th:text="${p.registroAnvisa != null ? 'ANVISA: ' + p.registroAnvisa : ''}"></div>
+                            </td>
+                            <td style="font-family:monospace;font-size:.82rem" th:text="${p.sku ?: '—'}">SKU</td>
+                            <td style="font-family:monospace;font-size:.82rem" th:text="${p.ncm ?: '—'}">NCM</td>
+                            <td th:text="${p.unidade ?: '—'}">UN</td>
+                            <td class="text-end">
+                                <span th:classappend="${p.estoqueAtual != null and p.estoqueMinimo != null and p.estoqueAtual <= p.estoqueMinimo} ? 'text-danger fw-bold' : ''"
+                                      th:text="${p.estoqueAtual ?: 0}">0</span>
+                                <span th:if="${p.estoqueAtual != null and p.estoqueMinimo != null and p.estoqueAtual <= p.estoqueMinimo}"
+                                      class="badge-status bg-danger text-white ms-1">Crítico</span>
+                            </td>
+                            <td class="text-end" style="font-weight:600">
+                                R$ <span th:text="${p.precoVendaVarejo != null ? #numbers.formatDecimal(p.precoVendaVarejo, 1, 2) : '—'}">0,00</span>
+                            </td>
+                            <td class="text-center">
+                                <span th:if="${p.ativo}" class="badge-status" style="background:#f0fdf4;color:#16a34a">Ativo</span>
+                                <span th:unless="${p.ativo}" class="badge-status" style="background:#fef2f2;color:#dc2626">Inativo</span>
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex gap-1 justify-content-center">
+                                    <a th:href="@{/web/estoque/produtos/{id}/editar(id=${p.id})}" class="btn btn-sm btn-outline-secondary" title="Editar">
+                                        <i class="fas fa-pen-to-square"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-danger" th:onclick="'confirmarExclusao(' + ${p.id} + ', \'' + ${p.nome} + '\')'" title="Excluir">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal confirm delete -->
+    <div class="modal fade" id="modalExcluir" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content" style="border-radius:16px;border:none">
+                <div class="modal-body text-center p-4">
+                    <i class="fas fa-trash text-danger mb-3" style="font-size:2rem"></i>
+                    <h6 class="fw-bold">Confirmar exclusão?</h6>
+                    <p id="nomeExcluir" class="text-muted" style="font-size:.85rem"></p>
+                    <div class="d-flex gap-2 justify-content-center mt-3">
+                        <button class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form id="formExcluir" method="post" style="display:inline">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="btn btn-sm btn-danger">Excluir</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    function filtrar() {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        document.querySelectorAll('#tabelaProdutos tbody tr').forEach(tr => {
+            tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+        });
+    }
+    function confirmarExclusao(id, nome) {
+        document.getElementById('nomeExcluir').textContent = nome;
+        document.getElementById('formExcluir').action = '/web/estoque/produtos/' + id + '/excluir';
+        new bootstrap.Modal(document.getElementById('modalExcluir')).show();
+    }
+</script>
+</html>
