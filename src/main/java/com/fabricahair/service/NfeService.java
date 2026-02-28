@@ -48,6 +48,8 @@ public class NfeService {
     private NfeRegistroRepository nfeRepository;
     @Autowired
     private PedidoVendaRepository pedidoRepository;
+    @Autowired
+    private ConfiguracaoEmpresaService configuracaoEmpresaService;
 
     private String getBaseUrl() {
         return "homologacao".equals(ambiente) ? urlHomologacao : urlProducao;
@@ -200,11 +202,22 @@ public class NfeService {
 
         boolean isHomologacao = "homologacao".equals(ambiente);
 
+        ConfiguracaoEmpresa config = configuracaoEmpresaService.obterConfiguracaoAtual();
+
+        String emitenteCnpj = (config.getCnpj() != null && !config.getCnpj().isEmpty()) ? config.getCnpj()
+                : empresaCnpj;
+        String emitenteRazao = (config.getRazaoSocial() != null && !config.getRazaoSocial().isEmpty())
+                ? config.getRazaoSocial()
+                : empresaRazaoSocial;
+        String emitenteFantasia = (config.getNomeFantasia() != null && !config.getNomeFantasia().isEmpty())
+                ? config.getNomeFantasia()
+                : empresaNomeFantasia;
+
         // ---- EMITENTE ----
-        nfe.put("cnpj_emitente", empresaCnpj);
+        nfe.put("cnpj_emitente", emitenteCnpj.replaceAll("[^0-9]", ""));
         nfe.put("nome_emitente",
-                isHomologacao ? "NF-E EMITIDA EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL" : empresaRazaoSocial);
-        nfe.put("nome_fantasia_emitente", empresaNomeFantasia);
+                isHomologacao ? "NF-E EMITIDA EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL" : emitenteRazao);
+        nfe.put("nome_fantasia_emitente", emitenteFantasia);
         nfe.put("regime_tributario_emitente", empresaRegime);
 
         // ---- DESTINATÁRIO ----

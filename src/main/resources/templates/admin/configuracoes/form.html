@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Configurações da Empresa',
+    activePage='configuracoes_empresa',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{::script}
+)}">
+<main>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Configurações da Empresa (White-Label)</h2>
+            <p class="text-muted">Personalize os dados e a logomarca da sua fábrica no sistema.</p>
+        </div>
+    </div>
+
+    <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i><span th:text="${sucesso}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i><span th:text="${erro}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="card shadow-sm border-0" style="border-radius:12px">
+        <div class="card-body p-4">
+            <form th:action="@{/web/admin/configuracoes/salvar}" method="post" enctype="multipart/form-data">
+
+                <h5 class="fw-bold mb-3 text-primary"><i class="fas fa-image me-2"></i>Logomarca</h5>
+                <div class="row mb-5 align-items-center">
+                    <div class="col-md-3 text-center">
+                        <div
+                            style="width: 150px; height: 150px; border-radius: 12px; border: 2px dashed #cbd5e1; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#f8fafc; margin: 0 auto;">
+                            <!-- Mostra a logo atual se existir -->
+                            <img th:if="${config.logoBase64 != null}" th:src="${config.logoBase64}" id="logoPreview"
+                                style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                            <!-- Placeholder se não existir -->
+                            <div th:unless="${config.logoBase64 != null}" id="logoPlaceholder"
+                                class="text-muted d-flex flex-column align-items-center">
+                                <i class="fas fa-camera fs-1 mb-2"></i>
+                                <span style="font-size:0.8rem">Sem Logo</span>
+                            </div>
+                            <img th:unless="${config.logoBase64 != null}" src="" id="logoPreview"
+                                style="max-width: 100%; max-height: 100%; object-fit: contain; display:none;">
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <label for="logoFile" class="form-label fw-bold">Alterar Logomarca da Empresa</label>
+                        <input class="form-control" type="file" id="logoFile" name="logoFile"
+                            accept="image/png, image/jpeg, image/jpg" onchange="previewImage(this)">
+                        <div class="form-text text-muted">
+                            <i class="fas fa-info-circle me-1"></i> Formatos suportados: JPG, PNG. Tamanho máximo: 2MB.
+                            <br>Recomendação: Imagem com fundo transparente (PNG).
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="mb-4">
+                <h5 class="fw-bold mb-3 text-primary"><i class="fas fa-building me-2"></i>Dados Principais</h5>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Razão Social *</label>
+                        <input type="text" class="form-control" name="razaoSocial" th:value="${config.razaoSocial}"
+                            required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Nome Fantasia</label>
+                        <input type="text" class="form-control" name="nomeFantasia" th:value="${config.nomeFantasia}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">CNPJ *</label>
+                        <input type="text" class="form-control" name="cnpj" th:value="${config.cnpj}" required
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Telefone</label>
+                        <input type="text" class="form-control" name="telefone" th:value="${config.telefone}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">E-mail Corporativo</label>
+                        <input type="email" class="form-control" name="email" th:value="${config.email}">
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold">Endereço Completo</label>
+                        <input type="text" class="form-control" name="endereco" th:value="${config.endereco}"
+                            placeholder="Rua, Número, Bairro, Cidade - UF, CEP">
+                    </div>
+                </div>
+
+                <div class="text-end mt-4">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save me-2"></i>Salvar Configurações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var preview = document.getElementById('logoPreview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+
+                var placeholder = document.getElementById('logoPlaceholder');
+                if (placeholder) {
+                    placeholder.style.display = 'none';
+                }
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+
+</html>
