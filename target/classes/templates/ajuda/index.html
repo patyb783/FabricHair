@@ -52,19 +52,28 @@
                         de produção acontece em 3 etapas:</p>
                     <ol>
                         <li><strong>Criação da OP (Ordem de Produção):</strong> Escolha os insumos que serão consumidos
-                            da fábrica para criar o produto.</li>
+                            da fábrica para criar o produto. A OP nasce com o status <span
+                                class="badge bg-secondary">Planejada</span>.</li>
+                        <li><strong>Iniciar Produção:</strong> Ao clicar em Iniciar, o status muda para <span
+                                class="badge bg-primary">Em Produção</span> e o sistema realiza a baixa automática de
+                            todos os insumos selecionados do seu estoque.</li>
                         <li><strong>Finalização da OP:</strong> Após a produção acabar, informe quanto rendeu (Qtd.
                             Produzida), se houve <b>Refugo</b> (desperdício) e gastos extras como Mão de Obra e Energia.
-                            O sistema calcula automaticamente o custo final do produto.</li>
+                            O status muda para <span class="badge bg-success">Finalizada</span> e o sistema calcula
+                            automaticamente o custo final do produto.</li>
                         <li><strong>Quarentena (Lote):</strong> O estoque final NÃO fica disponível para venda ainda. O
                             Lote gerado é enviado para a Quarentena.</li>
                     </ol>
+                    <p><em>Nota: Uma OP pode ser <span class="badge bg-danger">Cancelada</span> a qualquer momento antes
+                            da sua finalização, revertendo as movimentações pendentes. Para criar os produtos que
+                            aparecerão na OP, acesse o menu <strong>Estoque -> Produtos Acabados</strong>.</em></p>
 
                     <hr>
 
                     <h5 style="color: #1e293b; font-weight: 600;">Controle de Qualidade (Aprovação de Lote)</h5>
                     <p>Para manter as regras sanitárias, todo produto de uma OP aguarda no painel de
-                        <strong>Quarentena</strong>. Um analista deve realizar os testes fisíco-químicos e decidir:</p>
+                        <strong>Quarentena</strong>. Um analista deve realizar os testes fisíco-químicos e decidir:
+                    </p>
                     <ul>
                         <li><span class="badge bg-success">Aprovar</span> - A mercadoria entra imediatamente no estoque
                             disponível do ERP e já pode ser faturada.</li>
@@ -97,7 +106,8 @@
                         <li><strong>Movimentações:</strong> Tudo tem rastreio. Qualquer alteração de estoque devido a
                             uma OP ou Pedido de Venda gera um registro imutável em <b>Estoque > Movimentações</b>. O ERP
                             <b>não permite</b> excluir ou alterar movimentações geradas por fluxos automáticos para
-                            evitar fraudes.</li>
+                            evitar fraudes.
+                        </li>
                     </ul>
                 </div>
             </div>
