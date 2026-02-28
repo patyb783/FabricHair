@@ -524,8 +524,14 @@
             <span class="page-title" th:text="${pageTitle ?: 'Dashboard'}">Dashboard</span>
             <div class="topbar-spacer"></div>
             <div class="topbar-actions">
-                <button class="topbar-btn notification-dot"><i class="fas fa-bell" style="font-size:.8rem"></i></button>
-                <button class="topbar-btn"><i class="fas fa-gear" style="font-size:.8rem"></i></button>
+                <a href="/web/estoque/insumos" class="topbar-btn text-decoration-none" title="Notificações de Estoque">
+                    <span th:class="${alertasEstoque != null and alertasEstoque > 0 ? 'notification-dot' : ''}">
+                        <i class="fas fa-bell" style="font-size:.8rem"></i>
+                    </span>
+                </a>
+                <a href="/web/admin/configuracoes" class="topbar-btn text-decoration-none" title="Configurações">
+                    <i class="fas fa-gear" style="font-size:.8rem"></i>
+                </a>
             </div>
         </div>
 
