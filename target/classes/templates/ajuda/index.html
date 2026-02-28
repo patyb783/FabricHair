@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Ajuda e Suporte (Manual do Usuário)',
+    activePage='ajuda',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{}
+)}">
+<main>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item active">Ajuda</li>
+        </ol>
+    </nav>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white"
+                style="background: linear-gradient(135deg, #1e3a8a, #3b82f6) !important;">
+                <div class="card-body py-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-book-open fs-1 me-4 opacity-75"></i>
+                        <div>
+                            <h4 class="mb-1" style="font-weight: 700;">Como usar o ERP?</h4>
+                            <p class="mb-0 opacity-75">Aqui você encontra o guia completo com todas as funções, regras e
+                                fluxos do sistema para facilitar o dia a dia da indústria.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accordion de Documentação -->
+    <div class="accordion" id="accordionAjuda">
+
+        <!-- PRODUCAO E QUALIDADE -->
+        <div class="accordion-item mb-3 border rounded shadow-sm">
+            <h2 class="accordion-header" id="headingProducao">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseProducao" aria-expanded="false" aria-controls="collapseProducao"
+                    style="font-weight: 600; font-size: 1rem;">
+                    <i class="fas fa-industry me-2 text-primary"></i> 1. Produção e Qualidade
+                </button>
+            </h2>
+            <div id="collapseProducao" class="accordion-collapse collapse" aria-labelledby="headingProducao"
+                data-bs-parent="#accordionAjuda">
+                <div class="accordion-body" style="font-size: 0.9rem; line-height: 1.6; color: #475569;">
+                    <h5 style="color: #1e293b; font-weight: 600;">Fluxo de Produção</h5>
+                    <p>O ERP foi desenhado para calcular o <strong>Custo Unitário Real</strong> da mercadoria. O fluxo
+                        de produção acontece em 3 etapas:</p>
+                    <ol>
+                        <li><strong>Criação da OP (Ordem de Produção):</strong> Escolha os insumos que serão consumidos
+                            da fábrica para criar o produto.</li>
+                        <li><strong>Finalização da OP:</strong> Após a produção acabar, informe quanto rendeu (Qtd.
+                            Produzida), se houve <b>Refugo</b> (desperdício) e gastos extras como Mão de Obra e Energia.
+                            O sistema calcula automaticamente o custo final do produto.</li>
+                        <li><strong>Quarentena (Lote):</strong> O estoque final NÃO fica disponível para venda ainda. O
+                            Lote gerado é enviado para a Quarentena.</li>
+                    </ol>
+
+                    <hr>
+
+                    <h5 style="color: #1e293b; font-weight: 600;">Controle de Qualidade (Aprovação de Lote)</h5>
+                    <p>Para manter as regras sanitárias, todo produto de uma OP aguarda no painel de
+                        <strong>Quarentena</strong>. Um analista deve realizar os testes fisíco-químicos e decidir:</p>
+                    <ul>
+                        <li><span class="badge bg-success">Aprovar</span> - A mercadoria entra imediatamente no estoque
+                            disponível do ERP e já pode ser faturada.</li>
+                        <li><span class="badge bg-danger">Reprovar</span> - A mercadoria é travada e <b>não vira
+                                estoque</b>, gerando um prejuízo calculado contabilmente.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ESTOQUE -->
+        <div class="accordion-item mb-3 border rounded shadow-sm">
+            <h2 class="accordion-header" id="headingEstoque">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseEstoque" aria-expanded="false" aria-controls="collapseEstoque"
+                    style="font-weight: 600; font-size: 1rem;">
+                    <i class="fas fa-boxes-stacked me-2 text-warning"></i> 2. Gestão de Estoque
+                </button>
+            </h2>
+            <div id="collapseEstoque" class="accordion-collapse collapse" aria-labelledby="headingEstoque"
+                data-bs-parent="#accordionAjuda">
+                <div class="accordion-body" style="font-size: 0.9rem; line-height: 1.6; color: #475569;">
+                    <h5 style="color: #1e293b; font-weight: 600;">Insumos e Produtos Acabados</h5>
+                    <p>O sistema divide o inventário entre <strong>Insumos</strong> (matéria prima e embalagens usadas
+                        nas Ordens de Produção) e <strong>Produtos Acabados</strong> (itens liberados para a venda).</p>
+                    <ul>
+                        <li><strong>Aba Insumos:</strong> Ao cadastrar um insumo, defina a <i>Quantidade Mínima
+                                Múltipla</i> (Estoque de Segurança). Quando o insumo baixar além do mínimo aceitável, o
+                            sino no topo superior piscará em vermelho pedindo reposição.</li>
+                        <li><strong>Movimentações:</strong> Tudo tem rastreio. Qualquer alteração de estoque devido a
+                            uma OP ou Pedido de Venda gera um registro imutável em <b>Estoque > Movimentações</b>. O ERP
+                            <b>não permite</b> excluir ou alterar movimentações geradas por fluxos automáticos para
+                            evitar fraudes.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- VENDAS E LOGÍSTICA -->
+        <div class="accordion-item mb-3 border rounded shadow-sm">
+            <h2 class="accordion-header" id="headingVendas">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseVendas" aria-expanded="false" aria-controls="collapseVendas"
+                    style="font-weight: 600; font-size: 1rem;">
+                    <i class="fas fa-truck-fast me-2 text-success"></i> 3. Vendas B2B e Logística
+                </button>
+            </h2>
+            <div id="collapseVendas" class="accordion-collapse collapse" aria-labelledby="headingVendas"
+                data-bs-parent="#accordionAjuda">
+                <div class="accordion-body" style="font-size: 0.9rem; line-height: 1.6; color: #475569;">
+                    <h5 style="color: #1e293b; font-weight: 600;">Pedidos de Venda</h5>
+                    <p>Clientes diferem por Perfil de Preço: <b>Varejo, Atacado e Distribuidor</b>. O pedido sempre
+                        carregará o valor cadastrado para aquele perfil correspondente na tela do Produto.</p>
+                    <p>Os estados de um pedido são:</p>
+                    <ul>
+                        <li><strong>Rascunho:</strong> Sem impacto. Pode ser alterado.</li>
+                        <li><strong>Confirmado:</strong> Bloqueia o fechamento e garante o compromisso comercial.</li>
+                        <li><strong>Faturado:</strong> Ao faturar, o ERP <b>abate automaticamente os produtos do
+                                Estoque</b>. Insira o código de Rastreio neste momento.</li>
+                        <li><strong>Entregue:</strong> Avalia a SLA Logística.</li>
+                    </ul>
+
+                    <hr>
+
+                    <h5 style="color: #1e293b; font-weight: 600;">Módulo de Transportadoras e OTIF</h5>
+                    <p>Para que o botão visual de Rastreio funcione nos detalhes do pedido, cadastre a transportadora
+                        informando a rotina de <b>API de Integração</b> (ex: Loggi, Correios). Insira URLs
+                        personalizados com <code>{codigo}</code> se for de terceiros. </p>
+                    <p>No <strong>Painel do Centro de Distribuição</strong>, preste atenção à Métrica <b>OTIF</b> (On
+                        Time In Full). Quando o botão de "Entregue" for clicado num pedido, o sistema julgará o OTIF
+                        como <i>Atrasado</i> ou <i>No Prazo</i> baseando-se na Data Prevista definida pelo comercial.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMINISTRAÇÃO -->
+        <div class="accordion-item border rounded shadow-sm mb-5">
+            <h2 class="accordion-header" id="headingAdmin">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseAdmin" aria-expanded="false" aria-controls="collapseAdmin"
+                    style="font-weight: 600; font-size: 1rem;">
+                    <i class="fas fa-building-shield me-2 text-danger"></i> 4. Área Administrativa (White-Label)
+                </button>
+            </h2>
+            <div id="collapseAdmin" class="accordion-collapse collapse" aria-labelledby="headingAdmin"
+                data-bs-parent="#accordionAjuda">
+                <div class="accordion-body" style="font-size: 0.9rem; line-height: 1.6; color: #475569;">
+                    <p>Usuários com o perfil <b>ADMINISTRADOR</b> ou <b>GERENTE</b> têm acesso extra ao painel de
+                        configurações.</p>
+                    <ul>
+                        <li><strong>Troca de Logo:</strong> No atalho da engrenagem superior, você consegue fazer o
+                            Upload da foto da sua empresa e alterar o Nome Fantasia / CNPJ. O ERP se adaptará
+                            instantaneamente trocando a cara em menus, notas e guias.</li>
+                        <li><strong>Gestão de Usuários:</strong> É possível criar novos colaboradores informando seus
+                            e-mails operacionais e senhas de acesso, mas respeitando uma hierarquia dura (Financeiro e
+                            Almoxarifado não podem ver os custos do Administrador). O status ATIVO/INATIVO é a forma
+                            segura de revogar acesso de ex-funcionários sem apagar históricos do banco de dados.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+</html>
