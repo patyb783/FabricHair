@@ -20,26 +20,31 @@
             <div class="col-md-8">
                 <!-- PRODUTO E QUANTIDADE -->
                 <div class="card mb-3">
-                    <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i class="fas fa-spray-can me-2 text-primary"></i>Produto e Quantidade</span></div>
+                    <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i
+                                class="fas fa-spray-can me-2 text-primary"></i>Produto e Quantidade</span></div>
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-8">
                                 <label class="form-label">Produto a Fabricar <span class="text-danger">*</span></label>
                                 <select class="form-select" name="produtoId" id="selectProduto" required>
                                     <option value="">Selecione o produto...</option>
-                                    <option th:each="p : ${produtos}" th:value="${p.id}" th:text="${p.nome + (p.sku != null ? ' [' + p.sku + ']' : '')}">Produto</option>
+                                    <option th:each="p : ${produtos}" th:value="${p.id}"
+                                        th:text="|${p.nome} ${p.sku != null ? '[' + p.sku + ']' : ''}|">Produto</option>
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">Quantidade a Produzir <span class="text-danger">*</span></label>
+                                <label class="form-label">Quantidade a Produzir <span
+                                        class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" name="quantidade" step="0.001" min="0.001" placeholder="0" required>
+                                    <input type="number" class="form-control" name="quantidade" step="0.001" min="0.001"
+                                        placeholder="0" required>
                                     <span class="input-group-text" style="font-size:.8rem">UN</span>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Observações</label>
-                                <textarea class="form-control" name="observacoes" rows="2" placeholder="Instruções especiais, referência de cliente, etc."></textarea>
+                                <textarea class="form-control" name="observacoes" rows="2"
+                                    placeholder="Instruções especiais, referência de cliente, etc."></textarea>
                             </div>
                         </div>
                     </div>
@@ -48,7 +53,8 @@
                 <!-- INSUMOS NECESSÁRIOS -->
                 <div class="card">
                     <div class="card-header d-flex align-items-center justify-content-between">
-                        <span style="font-weight:600;font-size:.9rem"><i class="fas fa-flask me-2 text-success"></i>Insumos Necessários</span>
+                        <span style="font-weight:600;font-size:.9rem"><i
+                                class="fas fa-flask me-2 text-success"></i>Insumos Necessários</span>
                         <button type="button" class="btn btn-sm btn-outline-primary" onclick="adicionarInsumo()">
                             <i class="fas fa-plus me-1"></i> Adicionar Insumo
                         </button>
@@ -56,13 +62,15 @@
                     <div class="card-body">
                         <div class="text-muted mb-3" style="font-size:.82rem">
                             <i class="fas fa-info-circle me-1"></i>
-                            Adicione os insumos que serão consumidos. Ao <strong>iniciar</strong> a OP, eles serão automaticamente baixados do estoque.
+                            Adicione os insumos que serão consumidos. Ao <strong>iniciar</strong> a OP, eles serão
+                            automaticamente baixados do estoque.
                         </div>
                         <div id="listaInsumos">
                             <!-- Linhas de insumo serão adicionadas aqui -->
                         </div>
                         <div id="semInsumos" class="text-center text-muted py-3" style="font-size:.82rem">
-                            <i class="fas fa-flask me-1"></i> Nenhum insumo adicionado ainda — clique em "Adicionar Insumo"
+                            <i class="fas fa-flask me-1"></i> Nenhum insumo adicionado ainda — clique em "Adicionar
+                            Insumo"
                         </div>
                     </div>
                 </div>
@@ -71,32 +79,42 @@
             <!-- LATERAL -->
             <div class="col-md-4">
                 <div class="card mb-3">
-                    <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i class="fas fa-info-circle me-2 text-info"></i>Fluxo da OP</span></div>
+                    <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i
+                                class="fas fa-info-circle me-2 text-info"></i>Fluxo da OP</span></div>
                     <div class="card-body p-0">
                         <div class="p-3" style="border-bottom:1px solid #f1f5f9">
                             <div class="d-flex gap-3 align-items-center">
-                                <div style="width:32px;height:32px;border-radius:50%;background:#fef3c7;color:#92400e;display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0">1</div>
+                                <div
+                                    style="width:32px;height:32px;border-radius:50%;background:#fef3c7;color:#92400e;display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0">
+                                    1</div>
                                 <div>
                                     <div style="font-weight:600;font-size:.85rem">Criar OP</div>
-                                    <div style="font-size:.75rem;color:#64748b">Define produto, quantidade e insumos</div>
+                                    <div style="font-size:.75rem;color:#64748b">Define produto, quantidade e insumos
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="p-3" style="border-bottom:1px solid #f1f5f9">
                             <div class="d-flex gap-3 align-items-center">
-                                <div style="width:32px;height:32px;border-radius:50%;background:#eff6ff;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0">2</div>
+                                <div
+                                    style="width:32px;height:32px;border-radius:50%;background:#eff6ff;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0">
+                                    2</div>
                                 <div>
                                     <div style="font-weight:600;font-size:.85rem">Iniciar Produção</div>
-                                    <div style="font-size:.75rem;color:#64748b">Baixa insumos do estoque automaticamente</div>
+                                    <div style="font-size:.75rem;color:#64748b">Baixa insumos do estoque automaticamente
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="p-3">
                             <div class="d-flex gap-3 align-items-center">
-                                <div style="width:32px;height:32px;border-radius:50%;background:#f0fdf4;color:#15803d;display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0">3</div>
+                                <div
+                                    style="width:32px;height:32px;border-radius:50%;background:#f0fdf4;color:#15803d;display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0">
+                                    3</div>
                                 <div>
                                     <div style="font-weight:600;font-size:.85rem">Finalizar + Gerar Lote</div>
-                                    <div style="font-size:.75rem;color:#64748b">Cria lote com validade e atualiza estoque do produto</div>
+                                    <div style="font-size:.75rem;color:#64748b">Cria lote com validade e atualiza
+                                        estoque do produto</div>
                                 </div>
                             </div>
                         </div>
@@ -127,8 +145,8 @@
                 __OPCOES__
             </select>
             <div class="input-group input-group-sm" style="flex:1">
-                <input type="number" class="form-control form-control-sm" name="quantidadesInsumos"
-                       step="0.001" min="0.001" placeholder="Qtd" required>
+                <input type="number" class="form-control form-control-sm" name="quantidadesInsumos" step="0.001"
+                    min="0.001" placeholder="Qtd" required>
                 <span class="input-group-text" style="font-size:.75rem">UN</span>
             </div>
             <button type="button" class="btn btn-sm btn-outline-danger" onclick="removerInsumo(this)">
@@ -164,7 +182,7 @@
         div.className = 'insumo-linha d-flex gap-2 mb-2 align-items-center';
         div.innerHTML = `
             <select class="form-select form-select-sm" name="insumoIds" style="flex:2">
-                ${document.getElementById('optInsumoSource').innerHTML}
+                ` + document.getElementById('optInsumoSource').innerHTML + `
             </select>
             <div class="input-group input-group-sm" style="flex:1">
                 <input type="number" class="form-control form-control-sm" name="quantidadesInsumos"
@@ -188,8 +206,8 @@
 <!-- Source oculto das opções de insumos para o JS copiar -->
 <select id="optInsumoSource" style="display:none">
     <option value="">Selecione o insumo...</option>
-    <option th:each="ins : ${insumos}"
-            th:value="${ins.id}"
-            th:text="${ins.nome + ' [Estoque: ' + ins.estoqueAtual + ' ' + (ins.unidade ?: '') + ']'}">Insumo</option>
+    <option th:each="ins : ${insumos}" th:value="${ins.id}"
+        th:text="|${ins.nome} [Estoque: ${ins.estoqueAtual} ${ins.unidade ?: ''}]|">Insumo</option>
 </select>
+
 </html>
