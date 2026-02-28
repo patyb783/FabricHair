@@ -56,10 +56,11 @@ public class PedidoVendaController {
             PedidoVenda p = pedidoService.criar(clienteId, observacoes, produtoIds, quantidades,
                     dataPrevisaoEntrega, transportadoraId, valorFrete);
             ra.addFlashAttribute("sucesso", "Pedido " + p.getNumeroPedido() + " criado!");
+            return "redirect:/web/pedidos/" + p.getId();
         } catch (Exception e) {
             ra.addFlashAttribute("erro", "Erro ao criar pedido: " + e.getMessage());
+            return "redirect:/web/pedidos/novo";
         }
-        return "redirect:/web/pedidos";
     }
 
     @GetMapping("/{id}")

@@ -24,6 +24,16 @@ public class Transportadora {
     private String telefone;
     private String email;
 
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private TipoIntegracao tipoIntegracao = TipoIntegracao.NENHUM;
+
+    private String urlRastreioPadrao;
+
     @Builder.Default
     private boolean ativo = true;
+
+    public enum TipoIntegracao {
+        NENHUM, LOGGI, CORREIOS, JADLOG, GETLOG, OUTROS
+    }
 }

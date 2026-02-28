@@ -46,6 +46,10 @@ public class PedidoVendaService {
         ClienteB2B cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado."));
 
+        if (produtoIds == null || produtoIds.isEmpty()) {
+            throw new RuntimeException("O pedido deve conter pelo menos um produto.");
+        }
+
         Transportadora transportadora = null;
         if (transportadoraId != null) {
             transportadora = transportadoraRepository.findById(transportadoraId)

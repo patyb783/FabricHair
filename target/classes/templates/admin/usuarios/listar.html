@@ -14,13 +14,22 @@
         </ol>
     </nav>
 
+    <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+        <i class="fas fa-check-circle me-2"></i><span th:text="${sucesso}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i><span th:text="${erro}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <span style="font-weight:600;font-size:1rem"><i class="fas fa-users-gear text-primary me-2"></i>Usuários do
                 Sistema</span>
-            <button class="btn btn-sm btn-primary" onclick="alert('Cadastro de usuários será implementado em breve!')">
+            <a href="/web/admin/usuarios/novo" class="btn btn-sm btn-primary">
                 <i class="fas fa-plus me-1"></i>Novo Usuário
-            </button>
+            </a>
         </div>
         <div class="card-body p-0">
             <div th:if="${usuarios == null or usuarios.isEmpty()}" class="text-center p-5 text-muted">
@@ -53,10 +62,18 @@
                                     th:text="${u.ativo ? 'Ativo' : 'Inativo'}">Ativo</span>
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-outline-secondary" title="Editar"
-                                    onclick="alert('Edição em breve!')">
-                                    <i class="fas fa-edit"></i>
-                                </button>
+                                <div class="btn-group">
+                                    <a class="btn btn-sm btn-outline-secondary" title="Editar"
+                                        th:href="@{/web/admin/usuarios/editar/{id}(id=${u.id})}">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a class="btn btn-sm btn-outline-danger" title="Desativar Acesso"
+                                        th:if="${u.ativo and u.username != 'admin'}"
+                                        th:href="@{/web/admin/usuarios/excluir/{id}(id=${u.id})}"
+                                        onclick="return confirm('Deseja realmente desativar este acesso? O usuário não poderá mais fazer login.')">
+                                        <i class="fas fa-ban"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
