@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Packing & Expedição',
+    activePage='pedidos',
+    content=~{::main},
+    extraHead=~{::style},
+    extraScript=~{::script}
+)}">
+<style>
+    @keyframes pulse-border {
+        0% {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+        }
+
+        70% {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+        }
+
+        100% {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+        }
+    }
+
+    .pulse-select {
+        animation: pulse-border 1.5s infinite;
+    }
+</style>
+<main>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/web/pedidos">Pedidos de Venda</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/web/pedidos/{id}(id=${pedido.id})}"
+                    th:text="${pedido.numeroPedido}">PV-001</a></li>
+            <li class="breadcrumb-item active">Packing WMS</li>
+        </ol>
+    </nav>
+
+    <div th:if="${erro}" class="alert alert-danger mb-3"><i class="fas fa-exclamation-circle me-2"></i><span
+            th:text="${erro}"></span></div>
+
+    <div class="row g-3">
+        <!-- COLUNA ESQUERDA: INFORMAÇÕES E BIPAGEM -->
+        <div class="col-md-4">
+            <div class="card mb-3" style="border-radius:12px;border:none;box-shadow:0 4px 6px -1px rgba(0,0,0,.1)">
+                <div class="card-body bg-dark text-white" style="border-radius:12px">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-barcode me-2 text-primary"></i>Conferência (Bipper)</h5>
+                    <p class="text-muted" style="font-size:0.85rem">Pistole o código de barras (EAN ou SKU) de cada
+                        produto físico antes de colocá-lo na caixa.</p>
+
+                    <input type="text" id="scannerInput"
+                        class="form-control form-control-lg bg-dark text-white border-light mb-2"
+                        placeholder="Aguardando bipagem..." autocomplete="off" autofocus>
+
+                    <div id="scanStatus" class="p-2 rounded text-center"
+                        style="background:#1e293b; font-size:0.9rem; font-weight:bold; min-height: 40px; display:flex; align-items:center; justify-content:center;">
+                        <span class="text-secondary">Pronto para iniciar a leitura.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="border-radius:12px;border:none;box-shadow:0 4px 6px -1px rgba(0,0,0,.1)">
+                <div class="card-body">
+                    <h6 class="fw-bold text-muted mb-3">RESUMO DO PEDIDO</h6>
+                    <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
+                        <span class="text-muted">Cliente</span>
+                        <span class="fw-bold" th:text="${pedido.cliente.razaoSocial}"></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
+                        <span class="text-muted">Total de Caixas/Itens</span>
+                        <span class="fw-bold fs-5 text-primary" id="totalItensBadge">0</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Transportadora</span>
+                        <span class="fw-bold" th:text="${pedido.transportadora?.razaoSocial ?: 'Retirada'}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLUNA DIREITA: ITENS DO PEDIDO E LOTES -->
+        <div class="col-md-8">
+            <form th:action="@{/web/logistica/packing/{id}/faturar(id=${pedido.id})}" method="post" id="formPacking">
+                <div class="card" style="border-radius:12px;border:none;box-shadow:0 4px 6px -1px rgba(0,0,0,.1)">
+                    <div class="card-header bg-white p-3 border-bottom-0 rounded-top-12">
+                        <h5 class="mb-0 fw-bold" style="color:#0f172a"><i
+                                class="fas fa-box-open me-2 text-success"></i>Conteúdo da Expedição</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table mb-0">
+                            <thead style="background:#f8fafc; font-size:0.85rem">
+                                <tr>
+                                    <th class="ps-4" style="width: 40%">Produto (EAN/SKU)</th>
+                                    <th class="text-center" style="width: 20%">Progresso</th>
+                                    <th class="pe-4" style="width: 40%">Vincular Lote (Rastreabilidade)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item : ${pedido.itens}" th:id="'linha-item-' + ${item.id}"
+                                    th:data-sku="${item.produto.sku}" th:data-qtd="${item.quantidade}">
+                                    <td class="ps-4 py-3" style="vertical-align: middle;">
+                                        <input type="hidden" name="itemIds" th:value="${item.id}">
+                                        <div class="fw-bold text-dark" style="font-size:1.05rem;"
+                                            th:text="${item.produto.nome}">Produto</div>
+                                        <div class="text-muted mt-1" style="font-size:0.8rem; font-family:monospace"
+                                            th:text="${item.produto.sku}">SKU</div>
+                                    </td>
+                                    <td class="text-center py-3" style="vertical-align: middle;">
+                                        <span class="fs-4 fw-bold text-primary" th:id="'bipado-' + ${item.id}">0</span>
+                                        <span class="text-muted fw-bold"> / <span
+                                                th:text="${item.quantidade}">10</span></span>
+                                        <div class="progress mt-2"
+                                            style="height: 8px; border-radius:4px; background:#e2e8f0;">
+                                            <div class="progress-bar bg-success" role="progressbar"
+                                                th:id="'progress-' + ${item.id}" style="width: 0%;"></div>
+                                        </div>
+                                    </td>
+                                    <td class="pe-4 py-3" style="vertical-align: middle;">
+                                        <label class="form-label text-muted mb-1"
+                                            style="font-size: 0.72rem; font-weight: 700;"><i
+                                                class="fas fa-search-location me-1"></i>Vincular Lote Expedido</label>
+                                        <select class="form-select border-2" name="loteIds" th:id="'lote-' + ${item.id}"
+                                            required style="font-size:0.85rem;">
+                                            <option value="">Aguardando conferência...</option>
+                                            <option th:each="lote : ${lotesPorItem.get(item.id)}" th:value="${lote.id}"
+                                                th:text="${lote.numeroLote + ' (Vence: ' + (lote.getDataValidade() != null ? #temporals.format(lote.getDataValidade(), 'dd/MM/yyyy') : 'N/A') + ')'}">
+                                                LOT-123
+                                            </option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer bg-white text-end p-3 border-top-0" style="border-radius:0 0 12px 12px">
+                        <button type="button" class="btn btn-outline-secondary me-2" onclick="forcarLiberacao()">
+                            <i class="fas fa-unlock me-1"></i>Pular Bipagem (Bypass)
+                        </button>
+                        <button type="button" class="btn btn-success px-4 py-2" id="btnConcluir" disabled
+                            onclick="submeterPacking()" style="font-weight:600; border-radius:8px">
+                            <i class="fas fa-truck-loading me-2"></i>Concluir & Faturar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+<script>
+    const itemMap = {};
+    let totalItens = 0;
+    let totalBipado = 0;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('tr[id^="linha-item-"]').forEach(tr => {
+            const id = tr.id.replace('linha-item-', '');
+            const sku = tr.getAttribute('data-sku');
+            const qtd = parseFloat(tr.getAttribute('data-qtd'));
+            totalItens += qtd;
+            itemMap[sku] = {
+                id: id,
+                expected: qtd,
+                bipado: 0
+            };
+        });
+        document.getElementById('totalItensBadge').innerText = totalItens;
+
+        // Foca no input toda vez que o usuario clica fora
+        document.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'SELECT' && e.target.tagName !== 'BUTTON') {
+                document.getElementById('scannerInput').focus();
+            }
+        });
+    });
+
+    const scanner = document.getElementById('scannerInput');
+    scanner.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const val = this.value.trim();
+            if (val) processarBipagem(val);
+            this.value = '';
+        }
+    });
+
+    function processarBipagem(codigo) {
+        const pStatus = document.getElementById('scanStatus');
+        const itemInfo = itemMap[codigo];
+
+        if (!itemInfo) {
+            tratarErroNaBipagem(pStatus, `Produto não consta no pedido! (${codigo})`);
+            return;
+        }
+
+        if (itemInfo.bipado >= itemInfo.expected) {
+            tratarErroNaBipagem(pStatus, `Excedente! (${codigo} já foi totalmente conferido)`);
+            return;
+        }
+
+        // Sucesso na leitura
+        itemInfo.bipado++;
+        totalBipado++;
+
+        // Atualiza a UI
+        document.getElementById('bipado-' + itemInfo.id).innerText = itemInfo.bipado;
+        const percent = (itemInfo.bipado / itemInfo.expected) * 100;
+        const pb = document.getElementById('progress-' + itemInfo.id);
+        pb.style.width = percent + '%';
+
+        const tr = document.getElementById('linha-item-' + itemInfo.id);
+
+        // Efeito de flash na linha
+        tr.style.backgroundColor = '#dcfce3';
+        setTimeout(() => {
+            if (itemInfo.bipado < itemInfo.expected) {
+                tr.style.backgroundColor = 'transparent';
+            }
+        }, 300);
+
+        // Mudança visual se completou a linha
+        if (itemInfo.bipado === itemInfo.expected) {
+            tr.style.background = '#f0fdf4';
+            pStatus.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-1"></i>Linha ${codigo} totalmente conferida!</span>`;
+
+            // Highlight the select so the user remembers to pick the Lot
+            const select = document.getElementById('lote-' + itemInfo.id);
+            select.classList.add('pulse-select');
+
+            // Auto select first option to help user (FEFO default)
+            if (select.options.length > 1 && select.selectedIndex === 0) {
+                select.selectedIndex = 1;
+            }
+        } else {
+            pStatus.innerHTML = `<span class="text-success"><i class="fas fa-barcode me-1"></i>Bipado com sucesso (${itemInfo.bipado} de ${itemInfo.expected})</span>`;
+        }
+
+        verificarFim();
+    }
+
+    function tratarErroNaBipagem(el, msg) {
+        el.innerHTML = `<span class="text-danger"><i class="fas fa-times-circle me-1"></i>${msg}</span>`;
+        document.body.style.backgroundColor = '#fee2e2'; // flash red bg
+        setTimeout(() => document.body.style.backgroundColor = '', 200);
+    }
+
+    function verificarFim() {
+        if (totalBipado >= totalItens) {
+            document.getElementById('btnConcluir').disabled = false;
+            document.getElementById('scanStatus').innerHTML = '<span class="text-primary"><i class="fas fa-thumbs-up me-1"></i><strong>CONFERÊNCIA COMPLETA! Confira os Lotes WMS e fature.</strong></span>';
+            document.getElementById('btnConcluir').classList.remove('btn-success');
+            document.getElementById('btnConcluir').classList.add('btn-primary');
+            document.getElementById('btnConcluir').classList.add('pulse-select');
+        }
+    }
+
+    function forcarLiberacao() {
+        if (confirm('Tem certeza que deseja pular a conferência de bipagem? Isso burla o processo de Segurança de Expedição WMS.')) {
+            document.getElementById('btnConcluir').disabled = false;
+
+            // Preeche tudo como conferido
+            Object.values(itemMap).forEach(info => {
+                info.bipado = info.expected;
+                document.getElementById('bipado-' + info.id).innerText = info.expected;
+                document.getElementById('progress-' + info.id).style.width = '100%';
+                document.getElementById('linha-item-' + info.id).style.background = '#f0fdf4';
+
+                const select = document.getElementById('lote-' + info.id);
+                if (select.options.length > 1 && select.selectedIndex === 0) select.selectedIndex = 1;
+            });
+            totalBipado = totalItens;
+            verificarFim();
+        }
+    }
+
+    function submeterPacking() {
+        // checks if all selects have a value
+        let lotesPreenchidos = true;
+        document.querySelectorAll('select[name="loteIds"]').forEach(s => {
+            if (!s.value) lotesPreenchidos = false;
+        });
+
+        if (!lotesPreenchidos) {
+            alert('Erro: Você deve selecionar o **Lote Específico** para cada produto expedido (Rastreabilidade Obrigatória).');
+            return;
+        }
+
+        if (confirm('Deseja faturar pedido, emitir relatórios de saída e dar baixa no estoque dos lotes selecionados?')) {
+            document.getElementById('btnConcluir').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Faturando...';
+            document.getElementById('btnConcluir').disabled = true;
+            document.getElementById('formPacking').submit();
+        }
+    }
+</script>
+
+</html>

@@ -148,6 +148,71 @@ public class PedidoVendaService {
     }
 
     @Transactional
+    public PedidoVenda faturarComWms(Long pedidoId, List<Long> itemIds, List<Long> loteIds) {
+        PedidoVenda pedido = buscarPorId(pedidoId);
+        if (pedido.getStatus() != StatusPedido.CONFIRMADO) {
+            throw new RuntimeException("Apenas pedidos CONFIRMADOS podem ser faturados e expedidos.");
+        }
+
+        if (itemIds == null || loteIds == null || itemIds.size() != loteIds.size()) {
+            throw new RuntimeException("A seleção de lotes da expedição está inconsistente.");
+        }
+
+        Map<Long, Long> mapItemLote = new HashMap<>();
+        for (int i = 0; i < itemIds.size(); i++) {
+            mapItemLote.put(itemIds.get(i), loteIds.get(i));
+        }
+
+        // Baixar estoque dos produtos e dos lotes simultaneamente
+        for (PedidoItem item : pedido.getItens()) {
+            ProdutoAcabado produto = item.getProduto();
+            Long loteId = mapItemLote.get(item.getId());
+
+            if (loteId == null) {
+                throw new RuntimeException("Nenhum lote selecionado na expedição para o item " + produto.getNome());
+            }
+
+            Lote lote = loteRepository.findById(loteId)
+                    .orElseThrow(() -> new RuntimeException("Lote não encontrado: " + loteId));
+
+            item.setLote(lote); // Relaciona o lote exato bipado com a linha do pedido (rastreabilidade!)
+
+            int estoqueAtual = produto.getEstoqueAtual() != null ? produto.getEstoqueAtual() : 0;
+            int qtdSaida = item.getQuantidade().intValue();
+
+            if (estoqueAtual < qtdSaida) {
+                throw new RuntimeException("Estoque global insuficiente para " + produto.getNome());
+            }
+
+            if (lote.getQuantidadeDisponivel().compareTo(item.getQuantidade()) < 0) {
+                throw new RuntimeException(
+                        "Estoque insuficiente no Lote " + lote.getNumeroLote() + " para " + produto.getNome());
+            }
+
+            // Atualiza estoques globais
+            produto.setEstoqueAtual(estoqueAtual - qtdSaida);
+            produtoRepository.save(produto);
+
+            // Atualiza estoque específico do Lote (FEFO)
+            lote.setQuantidadeDisponivel(lote.getQuantidadeDisponivel().subtract(item.getQuantidade()));
+            loteRepository.save(lote);
+
+            movimentacaoRepository.save(MovimentacaoEstoque.builder()
+                    .tipo(TipoMovimentacao.SAIDA_PRODUTO_VENDA)
+                    .produtoId(produto.getId())
+                    .loteId(lote.getId()) // Rastreabilidade do WMS
+                    .quantidade(item.getQuantidade())
+                    .descricao("Expedição WMS — Pedido " + pedido.getNumeroPedido() + " (Lote " + lote.getNumeroLote()
+                            + ")")
+                    .build());
+        }
+
+        pedido.setStatus(StatusPedido.FATURADO);
+        pedido.setDataFaturamento(LocalDateTime.now());
+        return pedidoRepository.save(pedido);
+    }
+
+    @Transactional
     public PedidoVenda marcarEntregue(Long pedidoId) {
         PedidoVenda pedido = buscarPorId(pedidoId);
         if (pedido.getStatus() != StatusPedido.FATURADO) {

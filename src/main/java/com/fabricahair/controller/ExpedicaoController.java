@@ -70,6 +70,46 @@ public class ExpedicaoController {
         return "logistica/picking";
     }
 
+    @GetMapping("/packing/{id}")
+    public String packingPanel(@PathVariable Long id, Model model) {
+        PedidoVenda pedido = pedidoService.buscarPorId(id);
+
+        if (pedido.getStatus() != PedidoVenda.StatusPedido.CONFIRMADO) {
+            return "redirect:/web/pedidos/" + id;
+        }
+
+        // Carga de lotes disponíveis para cada item para o usuário selecionar na doca
+        // de expedição
+        java.util.Map<Long, List<Lote>> lotesPorItem = new java.util.HashMap<>();
+        for (PedidoItem item : pedido.getItens()) {
+            List<Lote> lotes = loteRepository.findByProdutoIdAndStatus(item.getProduto().getId(),
+                    Lote.StatusLote.APROVADO);
+            lotes.sort(Comparator.comparing(l -> l.getDataValidade() != null ? l.getDataValidade() : LocalDate.MAX));
+            lotesPorItem.put(item.getId(), lotes);
+        }
+
+        model.addAttribute("pedido", pedido);
+        model.addAttribute("lotesPorItem", lotesPorItem);
+        return "logistica/packing";
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping("/packing/{id}/faturar")
+    public String concluirPacking(@PathVariable Long id,
+            @org.springframework.web.bind.annotation.RequestParam(value = "itemIds", required = false) List<Long> itemIds,
+            @org.springframework.web.bind.annotation.RequestParam(value = "loteIds", required = false) List<Long> loteIds,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes ra) {
+        try {
+            // A baixa física baseada no Lote (FEFO) acontecerá dentro do service
+            pedidoService.faturarComWms(id, itemIds, loteIds);
+            ra.addFlashAttribute("sucesso",
+                    "Expedição concluída! O estoque dos lotes bipados foi baixado conforme a rastreabilidade WMS.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("erro", "Erro na expedição WMS: " + e.getMessage());
+            return "redirect:/web/logistica/packing/" + id;
+        }
+        return "redirect:/web/pedidos/" + id;
+    }
+
     public static class PickingItemDto {
         private String produtoNome;
         private String sku;
