@@ -11,9 +11,11 @@ C:\FabricHair\src\main\java\com\fabricahair\model\OpInsumo.java
 C:\FabricHair\src\main\java\com\fabricahair\controller\PedidoVendaController.java
 C:\FabricHair\src\main\java\com\fabricahair\repository\ClienteB2BRepository.java
 C:\FabricHair\src\main\java\com\fabricahair\security\UserDetailsServiceImpl.java
+C:\FabricHair\src\main\java\com\fabricahair\repository\RegistroPontoRepository.java
 C:\FabricHair\src\main\java\com\fabricahair\controller\ExpedicaoController.java
 C:\FabricHair\src\main\java\com\fabricahair\model\Fornecedor.java
 C:\FabricHair\src\main\java\com\fabricahair\repository\FornecedorRepository.java
+C:\FabricHair\src\main\java\com\fabricahair\controller\PontoController.java
 C:\FabricHair\src\main\java\com\fabricahair\model\PedidoItem.java
 C:\FabricHair\src\main\java\com\fabricahair\security\SecurityConfig.java
 C:\FabricHair\src\main\java\com\fabricahair\model\DispositivoIot.java
@@ -41,6 +43,7 @@ C:\FabricHair\src\main\java\com\fabricahair\model\ConfiguracaoEmpresa.java
 C:\FabricHair\src\main\java\com\fabricahair\model\OrdemProducao.java
 C:\FabricHair\src\main\java\com\fabricahair\security\JwtAuthenticationEntryPoint.java
 C:\FabricHair\src\main\java\com\fabricahair\controller\DashboardController.java
+C:\FabricHair\src\main\java\com\fabricahair\model\RegistroPonto.java
 C:\FabricHair\src\main\java\com\fabricahair\repository\TransportadoraRepository.java
 C:\FabricHair\src\main\java\com\fabricahair\controller\LoteController.java
 C:\FabricHair\src\main\java\com\fabricahair\controller\OrdemProducaoController.java
