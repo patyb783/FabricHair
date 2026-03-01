@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Registrar Ponto Eletrônico',
+    activePage='ponto',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{::script}
+)}">
+<main>
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="text-center mb-4">
+                <i class="fas fa-fingerprint fa-4x text-primary shadow-sm p-3 rounded-circle bg-white mb-3"
+                    style="color: #2563eb !important;"></i>
+                <h2 class="fw-bold mb-1">Ponto Eletrônico</h2>
+                <p class="text-muted">Registre sua jornada de trabalho.</p>
+
+                <div class="display-3 fw-bold text-dark my-4" id="relogio" style="letter-spacing: -2px;">
+                    00:00:00
+                </div>
+                <div class="fs-5 text-muted mb-4 text-capitalize">
+                    <span
+                        th:text="${#temporals.format(#temporals.createNow(), 'EEEE, dd ''de'' MMMM ''de'' yyyy', new java.util.Locale('pt','BR'))}"></span>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-body p-4 text-center">
+                    <form th:action="@{/web/rh/ponto/registrar}" method="post">
+
+                        <div class="d-grid gap-3">
+                            <!-- Entrada -->
+                            <button type="submit" name="tipoAcao" value="ENTRADA" class="btn btn-lg fw-bold"
+                                th:classappend="${registro.entrada == null ? 'btn-success' : 'btn-light text-muted'}"
+                                th:disabled="${registro.entrada != null}">
+                                <i class="fas fa-sign-in-alt me-2"></i> Registrar Entrada
+                            </button>
+                            <div th:if="${registro.entrada != null}" class="text-success small mb-2">
+                                <i class="fas fa-check-circle me-1"></i> Entrada confirmada às <span
+                                    th:text="${#temporals.format(registro.entrada, 'HH:mm')}"></span>
+                            </div>
+
+                            <!-- Início Almoço -->
+                            <button type="submit" name="tipoAcao" value="INICIO_ALMOCO" class="btn btn-lg fw-bold"
+                                th:classappend="${registro.entrada != null and registro.inicioAlmoco == null ? 'btn-warning' : 'btn-light text-muted'}"
+                                th:disabled="${registro.entrada == null or registro.inicioAlmoco != null}">
+                                <i class="fas fa-utensils me-2"></i> Saída Almoço
+                            </button>
+                            <div th:if="${registro.inicioAlmoco != null}" class="text-warning small mb-2">
+                                <i class="fas fa-check-circle me-1"></i> Almoço iniciado às <span
+                                    th:text="${#temporals.format(registro.inicioAlmoco, 'HH:mm')}"></span>
+                            </div>
+
+                            <!-- Retorno Almoço -->
+                            <button type="submit" name="tipoAcao" value="FIM_ALMOCO" class="btn btn-lg fw-bold"
+                                th:classappend="${registro.inicioAlmoco != null and registro.fimAlmoco == null ? 'btn-info' : 'btn-light text-muted'}"
+                                th:disabled="${registro.inicioAlmoco == null or registro.fimAlmoco != null}">
+                                <i class="fas fa-undo me-2"></i> Retorno Almoço
+                            </button>
+                            <div th:if="${registro.fimAlmoco != null}" class="text-info small mb-2">
+                                <i class="fas fa-check-circle me-1"></i> Retorno às <span
+                                    th:text="${#temporals.format(registro.fimAlmoco, 'HH:mm')}"></span>
+                            </div>
+
+                            <!-- Saída -->
+                            <hr class="my-2">
+                            <button type="submit" name="tipoAcao" value="SAIDA" class="btn btn-lg fw-bold"
+                                th:classappend="${registro.entrada != null and registro.saida == null ? 'btn-danger' : 'btn-light text-muted'}"
+                                th:disabled="${registro.entrada == null or registro.saida != null}">
+                                <i class="fas fa-sign-out-alt me-2"></i> Registrar Saída Final
+                            </button>
+                            <div th:if="${registro.saida != null}" class="text-danger small mt-2">
+                                <i class="fas fa-check-circle me-1"></i> Expediente encerrado às <span
+                                    th:text="${#temporals.format(registro.saida, 'HH:mm')}"></span>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="text-center text-muted small">
+                <i class="fas fa-shield-halved me-1"></i> Seu IP e localização estão sendo gravados para auditoria.
+            </div>
+
+        </div>
+    </div>
+</main>
+<script>
+    function clock() {
+        const date = new Date();
+        document.getElementById("relogio").innerHTML = date.toLocaleTimeString('pt-BR');
+    }
+    setInterval(clock, 1000);
+    clock();
+</script>
+
+</html>

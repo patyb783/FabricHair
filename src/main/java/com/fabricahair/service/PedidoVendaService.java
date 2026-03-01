@@ -29,6 +29,8 @@ public class PedidoVendaService {
     private MovimentacaoEstoqueRepository movimentacaoRepository;
     @Autowired
     private TransportadoraRepository transportadoraRepository;
+    @Autowired
+    private com.fabricahair.repository.TituloFinanceiroRepository tituloRepository;
 
     public List<PedidoVenda> listarTodos() {
         return pedidoRepository.findAll();
@@ -144,6 +146,21 @@ public class PedidoVendaService {
 
         pedido.setStatus(StatusPedido.FATURADO);
         pedido.setDataFaturamento(LocalDateTime.now());
+
+        // --- INTEGRAÇÃO FINANCEIRA ---
+        // Gera o Título a Receber com vencimento para 30 dias (padrão)
+        com.fabricahair.model.TituloFinanceiro titulo = com.fabricahair.model.TituloFinanceiro.builder()
+                .tipo(com.fabricahair.model.TituloFinanceiro.TipoTitulo.RECEBER)
+                .descricao("Faturamento Pedido #" + pedido.getNumeroPedido() + " - "
+                        + pedido.getCliente().getRazaoSocial())
+                .valorOriginal(pedido.getValorTotal())
+                .dataVencimento(LocalDate.now().plusDays(30))
+                .status(com.fabricahair.model.TituloFinanceiro.StatusTitulo.PENDENTE)
+                .pedidoVenda(pedido)
+                .build();
+        tituloRepository.save(titulo);
+        // -----------------------------
+
         return pedidoRepository.save(pedido);
     }
 
@@ -209,6 +226,21 @@ public class PedidoVendaService {
 
         pedido.setStatus(StatusPedido.FATURADO);
         pedido.setDataFaturamento(LocalDateTime.now());
+
+        // --- INTEGRAÇÃO FINANCEIRA ---
+        // Gera o Título a Receber com vencimento para 30 dias (padrão)
+        com.fabricahair.model.TituloFinanceiro titulo = com.fabricahair.model.TituloFinanceiro.builder()
+                .tipo(com.fabricahair.model.TituloFinanceiro.TipoTitulo.RECEBER)
+                .descricao("Faturamento Pedido #" + pedido.getNumeroPedido() + " - "
+                        + pedido.getCliente().getRazaoSocial())
+                .valorOriginal(pedido.getValorTotal())
+                .dataVencimento(LocalDate.now().plusDays(30))
+                .status(com.fabricahair.model.TituloFinanceiro.StatusTitulo.PENDENTE)
+                .pedidoVenda(pedido)
+                .build();
+        tituloRepository.save(titulo);
+        // -----------------------------
+
         return pedidoRepository.save(pedido);
     }
 
