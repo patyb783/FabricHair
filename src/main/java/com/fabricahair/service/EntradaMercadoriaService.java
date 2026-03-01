@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -23,7 +24,7 @@ public class EntradaMercadoriaService {
     private LoteRepository loteRepository;
 
     @Autowired
-    private MovimentacaoEstoqueService movimentacaoService;
+    private MovimentacaoEstoqueRepository movimentacaoRepository;
 
     @Autowired
     private TituloFinanceiroRepository tituloFinanceiroRepository;
@@ -61,40 +62,41 @@ public class EntradaMercadoriaService {
             item.calcularTotal();
             totalEntrada = totalEntrada.add(item.getValorTotal());
 
-            // Cria o Lote Fisico
+            // Cria o Lote Fisico usando nomenclatura do DB
             Lote novoLote = Lote.builder()
-                    .codigo("NF" + entrada.getNumeroNota() + "-ID" + item.getId())
+                    .numeroLote("NF" + entrada.getNumeroNota() + "-ID" + item.getId())
                     .dataFabricacao(LocalDate.now())
-                    // Padrão de 2 anos de validade para revenda se não informado
                     .dataValidade(LocalDate.now().plusYears(2))
-                    .quantidadeInicial(item.getQuantidade())
-                    .quantidadeAtual(item.getQuantidade())
-                    // Como é compra de terceiro, já nasce APROVADO
-                    .aprovado(true)
+                    .quantidade(new BigDecimal(item.getQuantidade()))
+                    .quantidadeDisponivel(new BigDecimal(item.getQuantidade()))
+                    .status(Lote.StatusLote.APROVADO)
+                    .criadoEm(LocalDateTime.now())
+                    .dataLiberacao(LocalDateTime.now())
+                    .analistaQualidade("NF Fornecedor")
                     .build();
 
-            // Preenche de acordo com o Tipo
-            ProdutoBase refProduto;
-            if (item.getTipoItem() == ItemEntrada.TipoItemEntrada.INSUMO) {
-                novoLote.setInsumo(item.getInsumo());
-                novoLote.setLocalizacao(item.getInsumo().getLocalizacaoPadrao());
-                refProduto = item.getInsumo();
-            } else {
-                novoLote.setProdutoAcabado(item.getProdutoAcabado());
+            // Sendo distribuidor MVP, a revenda entra como Produto Acabado
+            if (item.getTipoItem() == ItemEntrada.TipoItemEntrada.PRODUTO_ACABADO) {
+                novoLote.setProduto(item.getProdutoAcabado());
                 novoLote.setLocalizacao(item.getProdutoAcabado().getLocalizacaoPadrao());
-                refProduto = item.getProdutoAcabado();
+            } else {
+                throw new IllegalStateException(
+                        "Para módulo Distribuidor, o Inbound Logístico exige cadastro de revenda sob Estoque > Produtos Acabados.");
             }
 
             Lote loteSalvo = loteRepository.save(novoLote);
             item.setLoteGerado(loteSalvo);
             itemEntradaRepository.save(item);
 
-            // Grava histórico de movimentação Positiva
-            movimentacaoService.registrarMovimentacao(
-                    refProduto,
-                    item.getQuantidade(),
-                    MovimentacaoEstoque.TipoMovimentacao.ENTRADA,
-                    "Entrada via NF de Compra Fornecedor Nº " + entrada.getNumeroNota());
+            MovimentacaoEstoque mov = MovimentacaoEstoque.builder()
+                    .produtoId(item.getProdutoAcabado().getId())
+                    .quantidade(new BigDecimal(item.getQuantidade()))
+                    .tipo(MovimentacaoEstoque.TipoMovimentacao.ENTRADA_COMPRA)
+                    .descricao("Entrada NF Compra: " + entrada.getNumeroNota())
+                    .loteId(loteSalvo.getId())
+                    .criadoEm(LocalDateTime.now())
+                    .build();
+            movimentacaoRepository.save(mov);
         }
 
         entrada.setValorTotal(totalEntrada);

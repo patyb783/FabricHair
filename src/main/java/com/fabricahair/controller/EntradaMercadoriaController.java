@@ -87,7 +87,7 @@ public class EntradaMercadoriaController {
 
             // Vincula qual lado da hierarquia foi escolhido (Misto de MVP)
             if (novoItem.getTipoItem() == ItemEntrada.TipoItemEntrada.INSUMO) {
-                novoItem.setInsumo(insumoService.buscarPorId(produtoId).orElseThrow());
+                novoItem.setInsumo(insumoService.buscarPorId(produtoId));
             } else {
                 novoItem.setProdutoAcabado(produtoService.buscarPorId(produtoId));
             }

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Recebimento de Mercadorias (Entradas)',
+    activePage='entradas',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{}
+)}">
+<main>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h3 mb-0 text-dark">
+                <i class="fas fa-boxes-packing fs-4 text-primary me-2"></i>
+                <span>Notas de Compra e Recebimento</span>
+            </h2>
+            <p class="text-muted mb-0">Gestão de produtos via Fornecedores.</p>
+        </div>
+        <a href="/web/entradas/novo" class="btn btn-primary px-4 py-2 rounded-3 shadow-sm" style="font-weight: 500;">
+            <i class="fas fa-plus me-2"></i> Nova Entrada
+        </a>
+    </div>
+
+    <!-- Alertas -->
+    <div th:if="${mensagemSucesso}" class="alert alert-success alert-dismissible fade show border-0 shadow-sm"
+        role="alert">
+        <i class="fas fa-check-circle me-2"></i> <span th:text="${mensagemSucesso}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${mensagemErro}" class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i> <span th:text="${mensagemErro}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <div th:if="${#lists.isEmpty(entradas)}" class="text-center py-5">
+                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                    style="width: 80px; height: 80px;">
+                    <i class="fas fa-box-open fs-1 text-muted opacity-50"></i>
+                </div>
+                <h5 class="text-muted">Nenhuma NF de Compra registrada</h5>
+                <p class="text-muted small">Suas notas aparecerão aqui após receber as mercadorias.</p>
+            </div>
+
+            <div class="table-responsive" th:if="${not #lists.isEmpty(entradas)}">
+                <table class="table table-hover align-middle mb-0 text-center">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Nº da Nota</th>
+                            <th class="text-start">Fornecedor</th>
+                            <th>Emissão</th>
+                            <th>Total (R$)</th>
+                            <th>Status/Estoque</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="entrada : ${entradas}">
+                            <td class="fw-bold text-dark" th:text="${entrada.numeroNota}"></td>
+                            <td class="text-start text-dark fw-medium" th:text="${entrada.fornecedor.razaoSocial}"></td>
+                            <td th:text="${#temporals.format(entrada.dataEmissao, 'dd/MM/yyyy')}"></td>
+                            <td class="fw-bold text-success"
+                                th:text="${#numbers.formatDecimal(entrada.valorTotal, 1, 'POINT', 2, 'COMMA')}"></td>
+                            <td>
+                                <span th:if="${entrada.status.name() == 'RASCUNHO'}"
+                                    class="badge bg-warning text-dark"><i class="fas fa-hourglass-half me-1"></i>
+                                    Rascunho / Aguardando Itens</span>
+                                <span th:if="${entrada.status.name() == 'FINALIZADA'}" class="badge bg-success"><i
+                                        class="fas fa-check me-1"></i> Finalizada (Estoque Injetado)</span>
+                                <span th:if="${entrada.status.name() == 'CANCELADA'}"
+                                    class="badge bg-danger">Cancelada</span>
+                            </td>
+                            <td>
+                                <a th:href="@{/web/entradas/editar/{id}(id=${entrada.id})}"
+                                    class="btn btn-sm btn-outline-primary rounded-3" title="Detalhes/Editar">
+                                    <i class="fas fa-eye"></i> Detalhes
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+</html>

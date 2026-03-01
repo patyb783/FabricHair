@@ -455,6 +455,9 @@
 
             <!-- LOGÍSTICA -->
             <div class="menu-section">Logística e Distribuição</div>
+            <a href="/web/entradas/listar" class="menu-item" th:classappend="${activePage == 'entradas'} ? 'active'">
+                <i class="fas fa-truck-ramp-box text-primary"></i> Notas de Compra (Inbound)
+            </a>
             <a href="/web/logistica/painel" class="menu-item"
                 th:classappend="${activePage == 'painel_logistica'} ? 'active'">
                 <i class="fas fa-desktop"></i> Centro de Distribuição

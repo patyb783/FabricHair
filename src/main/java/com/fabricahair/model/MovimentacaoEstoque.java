@@ -43,10 +43,11 @@ public class MovimentacaoEstoque {
     private LocalDateTime criadoEm = LocalDateTime.now();
 
     public enum TipoMovimentacao {
-        ENTRADA_INSUMO,       // compra de insumo
-        SAIDA_INSUMO_OP,      // insumo consumido em OP
-        ENTRADA_PRODUTO_OP,   // produto gerado por OP
-        SAIDA_PRODUTO_VENDA,  // produto vendido
+        ENTRADA_COMPRA, // compra de terceiros (Distribuidor ou NF)
+        ENTRADA_INSUMO, // compra de insumo
+        SAIDA_INSUMO_OP, // insumo consumido em OP
+        ENTRADA_PRODUTO_OP, // produto gerado por OP
+        SAIDA_PRODUTO_VENDA, // produto vendido
         AJUSTE_POSITIVO,
         AJUSTE_NEGATIVO
     }

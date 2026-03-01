@@ -10,7 +10,9 @@ C:\FabricHair\src\main\java\com\fabricahair\security\JwtAuthenticationFilter.jav
 C:\FabricHair\src\main\java\com\fabricahair\model\OpInsumo.java
 C:\FabricHair\src\main\java\com\fabricahair\controller\PedidoVendaController.java
 C:\FabricHair\src\main\java\com\fabricahair\repository\ClienteB2BRepository.java
+C:\FabricHair\src\main\java\com\fabricahair\service\EntradaMercadoriaService.java
 C:\FabricHair\src\main\java\com\fabricahair\security\UserDetailsServiceImpl.java
+C:\FabricHair\src\main\java\com\fabricahair\model\EntradaMercadoria.java
 C:\FabricHair\src\main\java\com\fabricahair\repository\RegistroPontoRepository.java
 C:\FabricHair\src\main\java\com\fabricahair\controller\ExpedicaoController.java
 C:\FabricHair\src\main\java\com\fabricahair\model\Fornecedor.java
@@ -26,6 +28,8 @@ C:\FabricHair\src\main\java\com\fabricahair\controller\TituloFinanceiroControlle
 C:\FabricHair\src\main\java\com\fabricahair\controller\GlobalConfigAdvice.java
 C:\FabricHair\src\main\java\com\fabricahair\repository\MovimentacaoEstoqueRepository.java
 C:\FabricHair\src\main\java\com\fabricahair\controller\QualidadeController.java
+C:\FabricHair\src\main\java\com\fabricahair\model\ItemEntrada.java
+C:\FabricHair\src\main\java\com\fabricahair\repository\ItemEntradaRepository.java
 C:\FabricHair\src\main\java\com\fabricahair\model\ProdutoAcabado.java
 C:\FabricHair\src\main\java\com\fabricahair\controller\IotRestController.java
 C:\FabricHair\src\main\java\com\fabricahair\controller\TransportadoraController.java
@@ -49,9 +53,11 @@ C:\FabricHair\src\main\java\com\fabricahair\controller\LoteController.java
 C:\FabricHair\src\main\java\com\fabricahair\controller\OrdemProducaoController.java
 C:\FabricHair\src\main\java\com\fabricahair\service\ConfiguracaoEmpresaService.java
 C:\FabricHair\src\main\java\com\fabricahair\controller\AjudaController.java
+C:\FabricHair\src\main\java\com\fabricahair\controller\EntradaMercadoriaController.java
 C:\FabricHair\src\main\java\com\fabricahair\service\ProdutoService.java
 C:\FabricHair\src\main\java\com\fabricahair\repository\LoteRepository.java
 C:\FabricHair\src\main\java\com\fabricahair\repository\ConfiguracaoEmpresaRepository.java
+C:\FabricHair\src\main\java\com\fabricahair\repository\EntradaMercadoriaRepository.java
 C:\FabricHair\src\main\java\com\fabricahair\repository\DispositivoIotRepository.java
 C:\FabricHair\src\main\java\com\fabricahair\controller\LoginController.java
 C:\FabricHair\src\main\java\com\fabricahair\service\InsumoService.java
