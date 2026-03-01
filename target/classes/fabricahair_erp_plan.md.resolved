@@ -1,0 +1,165 @@
+# FabricHair ERP — Plano de Arquitetura e MVP
+
+Sistema ERP dedicado para fábrica e centro de distribuição de produtos de cabelo.
+Separado do HatsuHair ERP, mas integrável via API.
+
+---
+
+## Visão Geral
+
+| Item | Decisão |
+|---|---|
+| **Stack** | Spring Boot 3 + PostgreSQL + Thymeleaf (mesma base do HatsuHair) |
+| **Deploy** | Railway (novo projeto separado) |
+| **NF-e** | Integração via [Focus NFe API](https://focusnfe.com.br/) |
+| **Auth** | JWT + perfis (ADMIN, GERENTE, PRODUCAO, ESTOQUE, VENDAS, FINANCEIRO) |
+| **Integração HatsuHair** | REST API para produtos/pedidos compartilhados |
+
+---
+
+## Arquitetura de Módulos
+
+```
+FabricHair ERP
+├── 🏭 Produção
+│   ├── Ordens de Produção (OP)
+│   ├── Fichas Técnicas de Formulação
+│   ├── Controle de Lote / Validade
+│   └── Controle de Qualidade
+│
+├── 📦 Estoque
+│   ├── Matérias-Primas (Insumos)
+│   ├── Produtos Acabados
+│   ├── Movimentações (Entrada / Saída / Ajuste)
+│   └── Alertas de Estoque Mínimo
+│
+├── 🛒 Compras
+│   ├── Pedidos de Compra (PC)
+│   ├── Fornecedores
+│   └── Recebimento de NF-e de entrada
+│
+├── 📤 Vendas B2B
+│   ├── Clientes B2B (distribuidores, revendas, salões)
+│   ├── Pedidos de Venda
+│   ├── Tabelas de Preço por perfil de cliente
+│   └── Orçamentos
+│
+├── 🧾 Fiscal
+│   ├── Emissão NF-e (Focus NFe API)
+│   ├── Certificado Digital A1
+│   ├── DANFE
+│   └── Registro ANVISA por produto
+│
+├── 💰 Financeiro
+│   ├── Contas a Receber
+│   ├── Contas a Pagar
+│   ├── Fluxo de Caixa
+│   └── Relatórios (DRE simplificado)
+│
+└── 🔗 Integrações
+    ├── HatsuHair ERP (produtos e pedidos)
+    └── Transportadoras (CORREIOS / jadlog futuramente)
+```
+
+---
+
+## Roadmap em Fases
+
+### 🔴 FASE 1 — Foundation (MVP Core) — 6–8 semanas
+
+**Objetivo:** Sistema funcional para controlar produção e emitir NF-e
+
+#### Módulos incluídos:
+1. **Auth & Usuários** — JWT, perfis de acesso
+2. **Produtos** — cadastro com NCM, ANVISA, lote, validade
+3. **Insumos/Matérias-Primas** — cadastro, estoque  
+4. **Ordens de Produção (OP)** — criar OP, baixar insumos, registrar lote produzido
+5. **Estoque** — movimentações básicas
+6. **Clientes B2B** — CNPJ, endereço de entrega, contato, limite de crédito
+7. **Pedidos de Venda** — criar pedido, vincular cliente, itens com quantidade e preço
+8. **NF-e de Saída** — integração Focus NFe, emissão e DANFE
+
+**Entregável:** Conseguir produzir um lote e vender com NF-e emitida.
+
+---
+
+### 🟡 FASE 2 — Operações Completas — 4–6 semanas
+
+1. **Compras** — PC para fornecedores, recebimento, baixa no estoque
+2. **Controle de Qualidade** — aprovação de lote antes de liberar venda
+3. **Tabela de Preços** — preço por perfil (atacado, distribuidor, varejo)
+4. **Contas a Receber / Pagar** — vencimentos, status de pagamento
+5. **Dashboard** — indicadores de produção, estoque crítico, vendas do mês
+6. **Relatórios** — produção por período, vendas por cliente, CMV
+
+---
+
+### 🟢 FASE 3 — Avançado — conforme demanda
+
+1. **Rastreabilidade** — de qual lote de insumo veio qual produto acabado
+2. **Integração HatsuHair** — pedidos do salão viram pedidos FabricHair
+3. **Comissões** — representantes de vendas externos
+4. **Etiquetas/Labels** — geração de etiqueta com QR Code do lote
+5. **Multi-empresa/filial** — para crescimento futuro
+
+---
+
+## Modelo de Dados Principal
+
+```
+produtos_acabados (id, nome, sku, ncm, registro_anvisa, preco_custo, preco_venda_*)
+insumos (id, nome, sku, unidade, estoque_atual, estoque_minimo, fornecedor_id)
+lotes (id, produto_id, numero_lote, data_fabricacao, data_validade, quantidade, status)
+ordens_producao (id, produto_id, quantidade_planejada, data_inicio, data_fim, status)
+op_insumos (op_id, insumo_id, quantidade_necessaria, quantidade_usada)
+clientes_b2b (id, razao_social, cnpj, ie, endereco, perfil_preco, limite_credito)
+pedidos_venda (id, cliente_id, data, status, valor_total, nfe_chave)
+pedidos_itens (id, pedido_id, produto_id, lote_id, quantidade, preco_unitario)
+nfe (id, pedido_id, chave_acesso, status, ambiente, xml, pdf_danfe_url)
+movimentacoes_estoque (id, produto_id, tipo, quantidade, motivo, referencia_id, data)
+```
+
+---
+
+## Integração NF-e via Focus NFe
+
+```java
+// Exemplo simplificado da integração
+POST https://homologacao.focusnfe.com.br/v2/nfe
+Authorization: Token SEU_TOKEN_FOCUS_NFE
+{
+  "natureza_operacao": "VENDA DE MERCADORIA",
+  "forma_pagamento": 0,
+  "emitente": { "cnpj": "...", "nome": "FabricHair Ltda" },
+  "destinatario": { "cnpj": "...", "nome": "Cliente Distribuidora" },
+  "itens": [{ "numero_item": 1, "codigo_ncm": "3305.90", ... }]
+}
+```
+
+**Custo:** ~R$200/mês para até 500 NF-e/mês  
+**Benefício:** Elimina certificação SEFAZ, assinatura XML, contingência — tudo gerenciado pela Focus.
+
+---
+
+## Stack Técnica Detalhada
+
+```
+Backend:   Spring Boot 3.x + Spring Security (JWT)
+Database:  PostgreSQL (Railway)
+Frontend:  Thymeleaf + Bootstrap 5 + Chart.js
+Build:     Maven
+Deploy:    Railway (novo serviço)
+Fiscal:    Focus NFe REST API
+Armazenamento: Railway Volume (PDFs DANFE, certificado A1)
+```
+
+---
+
+## Próximos Passos Imediatos
+
+- [ ] Criar repositório GitHub `FabricHair-ERP`
+- [ ] Inicializar projeto Spring Boot com dependências base
+- [ ] Definir schema inicial do banco (Flyway migrations)
+- [ ] Implementar auth + usuários (FASE 1)
+- [ ] Criar conta de teste na Focus NFe (ambiente de homologação é grátis)
+- [ ] Implementar cadastro de produtos com NCM e ANVISA
