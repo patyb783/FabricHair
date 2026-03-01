@@ -147,6 +147,30 @@
                         Time In Full). Quando o botão de "Entregue" for clicado num pedido, o sistema julgará o OTIF
                         como <i>Atrasado</i> ou <i>No Prazo</i> baseando-se na Data Prevista definida pelo comercial.
                     </p>
+
+                    <hr>
+
+                    <h5 style="color: #1e293b; font-weight: 600;">WMS Avançado e Expedição do CD</h5>
+                    <p>O ERP possui um sistema nativo de gestão de armazém (WMS) para maximizar a assertividade do setor
+                        de expedição:</p>
+                    <ul>
+                        <li><strong>Endereçamento Mapeado:</strong> Quando a Qualidade aprova um novo Lote, o sistema
+                            exige que seja especificada a localização física (ex: Prateleira B2). O estoque fica 100%
+                            mapeado na tela do ERP.</li>
+                        <li><strong>Romaneio de Separação (Picking list):</strong> Na tela do Pedido em estado
+                            <i>Confirmado</i>, o CD deve gerar e imprimir o Romaneio. O documento irá ordenar os
+                            produtos fisicamente para o estoquista andar menos, sugerindo sempre a coleta do
+                            <strong>Lote mais antigo</strong> para respeitar a regra FEFO (First-Expire, First-Out).
+                        </li>
+                        <li><strong>Painel de Conferência (Packing e Bipagem):</strong> Após separar no carrinho, o
+                            estoquista abre a tela de conferência do pedido. Ele precisará **bipar (ler o código de
+                            barras)** de cada unidade antes de selar a caixa de papelão. O sistema acusará erro e ficará
+                            com a tela vermelha caso a pessoa bipe um produto que o cliente não comprou.</li>
+                        <li><strong>Rastreabilidade Fina de Lote:</strong> O faturamento só é concluído quando o
+                            estoquista seleciona no sistema de qual Lote exato aquele pote foi tirado. Isso garante que
+                            a empresa saiba historicamente qual cliente recebeu qual lote, cumprindo as normativas
+                            sanitárias.</li>
+                    </ul>
                 </div>
             </div>
         </div>

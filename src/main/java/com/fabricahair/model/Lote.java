@@ -41,6 +41,9 @@ public class Lote {
     @Enumerated(EnumType.STRING)
     private StatusLote status = StatusLote.EM_QUARENTENA;
 
+    @Column(length = 100)
+    private String localizacao;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ordem_producao_id")
     private OrdemProducao ordemProducao;

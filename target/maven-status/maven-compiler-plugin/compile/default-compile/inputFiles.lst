@@ -7,6 +7,7 @@ C:\FabricHair\src\main\java\com\fabricahair\model\OpInsumo.java
 C:\FabricHair\src\main\java\com\fabricahair\controller\PedidoVendaController.java
 C:\FabricHair\src\main\java\com\fabricahair\repository\ClienteB2BRepository.java
 C:\FabricHair\src\main\java\com\fabricahair\security\UserDetailsServiceImpl.java
+C:\FabricHair\src\main\java\com\fabricahair\controller\ExpedicaoController.java
 C:\FabricHair\src\main\java\com\fabricahair\model\Fornecedor.java
 C:\FabricHair\src\main\java\com\fabricahair\repository\FornecedorRepository.java
 C:\FabricHair\src\main\java\com\fabricahair\model\PedidoItem.java

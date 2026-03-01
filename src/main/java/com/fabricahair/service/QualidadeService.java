@@ -29,7 +29,7 @@ public class QualidadeService {
     }
 
     @Transactional
-    public void aprovarLote(Long loteId, String analista) {
+    public void aprovarLote(Long loteId, String analista, String localizacao) {
         Lote lote = loteRepository.findById(loteId)
                 .orElseThrow(() -> new RuntimeException("Lote não encontrado: " + loteId));
 
@@ -40,6 +40,9 @@ public class QualidadeService {
         lote.setStatus(Lote.StatusLote.APROVADO);
         lote.setAnalistaQualidade(analista);
         lote.setDataLiberacao(LocalDateTime.now());
+        if (localizacao != null && !localizacao.trim().isEmpty()) {
+            lote.setLocalizacao(localizacao.trim());
+        }
         loteRepository.save(lote);
 
         // Somar ao estoque físico do produto

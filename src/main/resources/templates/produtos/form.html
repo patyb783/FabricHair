@@ -23,12 +23,14 @@
             <div class="col-md-8">
                 <!-- IDENTIFICAÇÃO -->
                 <div class="card mb-3">
-                    <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i class="fas fa-tag me-2 text-primary"></i>Identificação</span></div>
+                    <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i
+                                class="fas fa-tag me-2 text-primary"></i>Identificação</span></div>
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-12">
                                 <label class="form-label">Nome do Produto <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" th:field="*{nome}" placeholder="Ex: Shampoo Hidratante 500ml" required>
+                                <input type="text" class="form-control" th:field="*{nome}"
+                                    placeholder="Ex: Shampoo Hidratante 500ml" required>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">SKU</label>
@@ -37,7 +39,8 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">EAN (Código de Barras)</label>
-                                <input type="text" class="form-control" th:field="*{ean}" placeholder="7891234567890" maxlength="13">
+                                <input type="text" class="form-control" th:field="*{ean}" placeholder="7891234567890"
+                                    maxlength="13">
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Unidade</label>
@@ -52,9 +55,16 @@
                                     <option value="PCT">PCT — Pacote</option>
                                 </select>
                             </div>
-                            <div class="col-12">
+                            <div class="col-md-4">
+                                <label class="form-label">Localização Padrão (WMS)</label>
+                                <input type="text" class="form-control" th:field="*{localizacaoPadrao}"
+                                    placeholder="Ex: Prateleira B">
+                                <small class="text-muted">Sugestão p/ separação no picking</small>
+                            </div>
+                            <div class="col-md-8">
                                 <label class="form-label">Descrição</label>
-                                <textarea class="form-control" th:field="*{descricao}" rows="2" placeholder="Descrição do produto..."></textarea>
+                                <textarea class="form-control" th:field="*{descricao}" rows="2"
+                                    placeholder="Descrição do produto..."></textarea>
                             </div>
                         </div>
                     </div>
@@ -62,17 +72,20 @@
 
                 <!-- FISCAL / ANVISA -->
                 <div class="card mb-3">
-                    <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i class="fas fa-receipt me-2 text-success"></i>Fiscal / Regulatório</span></div>
+                    <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i
+                                class="fas fa-receipt me-2 text-success"></i>Fiscal / Regulatório</span></div>
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <label class="form-label">NCM <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" th:field="*{ncm}" placeholder="3305.90.00" maxlength="10">
+                                <input type="text" class="form-control" th:field="*{ncm}" placeholder="3305.90.00"
+                                    maxlength="10">
                                 <small class="text-muted">Código necessário para NF-e</small>
                             </div>
                             <div class="col-md-8">
                                 <label class="form-label">Registro ANVISA</label>
-                                <input type="text" class="form-control" th:field="*{registroAnvisa}" placeholder="Ex: 1234567890123">
+                                <input type="text" class="form-control" th:field="*{registroAnvisa}"
+                                    placeholder="Ex: 1234567890123">
                                 <small class="text-muted">Deixe em branco se isento</small>
                             </div>
                         </div>
@@ -84,34 +97,39 @@
             <div class="col-md-4">
                 <!-- PREÇOS -->
                 <div class="card mb-3">
-                    <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i class="fas fa-tag me-2 text-orange" style="color:#f59e0b"></i>Preços (R$)</span></div>
+                    <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i
+                                class="fas fa-tag me-2 text-orange" style="color:#f59e0b"></i>Preços (R$)</span></div>
                     <div class="card-body">
                         <div class="mb-3">
                             <label class="form-label">Custo de Fabricação</label>
                             <div class="input-group">
                                 <span class="input-group-text" style="font-size:.8rem">R$</span>
-                                <input type="number" class="form-control" th:field="*{precoCusto}" step="0.01" min="0" placeholder="0,00">
+                                <input type="number" class="form-control" th:field="*{precoCusto}" step="0.01" min="0"
+                                    placeholder="0,00">
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Venda Varejo</label>
                             <div class="input-group">
                                 <span class="input-group-text" style="font-size:.8rem">R$</span>
-                                <input type="number" class="form-control" th:field="*{precoVendaVarejo}" step="0.01" min="0" placeholder="0,00">
+                                <input type="number" class="form-control" th:field="*{precoVendaVarejo}" step="0.01"
+                                    min="0" placeholder="0,00">
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Venda Atacado</label>
                             <div class="input-group">
                                 <span class="input-group-text" style="font-size:.8rem">R$</span>
-                                <input type="number" class="form-control" th:field="*{precoVendaAtacado}" step="0.01" min="0" placeholder="0,00">
+                                <input type="number" class="form-control" th:field="*{precoVendaAtacado}" step="0.01"
+                                    min="0" placeholder="0,00">
                             </div>
                         </div>
                         <div class="mb-0">
                             <label class="form-label">Venda Distribuidor</label>
                             <div class="input-group">
                                 <span class="input-group-text" style="font-size:.8rem">R$</span>
-                                <input type="number" class="form-control" th:field="*{precoVendaDistribuidor}" step="0.01" min="0" placeholder="0,00">
+                                <input type="number" class="form-control" th:field="*{precoVendaDistribuidor}"
+                                    step="0.01" min="0" placeholder="0,00">
                             </div>
                         </div>
                     </div>
@@ -119,15 +137,19 @@
 
                 <!-- ESTOQUE -->
                 <div class="card mb-3">
-                    <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i class="fas fa-boxes-stacked me-2 text-info" style="color:#06b6d4"></i>Estoque</span></div>
+                    <div class="card-header"><span style="font-weight:600;font-size:.9rem"><i
+                                class="fas fa-boxes-stacked me-2 text-info" style="color:#06b6d4"></i>Estoque</span>
+                    </div>
                     <div class="card-body">
                         <div class="mb-3">
                             <label class="form-label">Estoque Atual</label>
-                            <input type="number" class="form-control" th:field="*{estoqueAtual}" min="0" placeholder="0">
+                            <input type="number" class="form-control" th:field="*{estoqueAtual}" min="0"
+                                placeholder="0">
                         </div>
                         <div class="mb-0">
                             <label class="form-label">Estoque Mínimo</label>
-                            <input type="number" class="form-control" th:field="*{estoqueMinimo}" min="0" placeholder="0">
+                            <input type="number" class="form-control" th:field="*{estoqueMinimo}" min="0"
+                                placeholder="0">
                             <small class="text-muted">Alerta será gerado abaixo deste valor</small>
                         </div>
                     </div>
@@ -138,7 +160,8 @@
                     <div class="card-body">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" th:field="*{ativo}" id="ativoSwitch">
-                            <label class="form-check-label fw-600" for="ativoSwitch" style="font-weight:600">Produto ativo</label>
+                            <label class="form-check-label fw-600" for="ativoSwitch" style="font-weight:600">Produto
+                                ativo</label>
                         </div>
                         <div class="mt-3 d-grid gap-2">
                             <button type="submit" class="btn btn-primary">
@@ -157,11 +180,12 @@
 </main>
 <script>
     // Formatação automática de NCM ao digitar
-    document.querySelector('[name="ncm"]')?.addEventListener('input', function() {
+    document.querySelector('[name="ncm"]')?.addEventListener('input', function () {
         let v = this.value.replace(/\D/g, '');
-        if (v.length > 4) v = v.slice(0,4) + '.' + v.slice(4);
-        if (v.length > 7) v = v.slice(0,7) + '.' + v.slice(7);
+        if (v.length > 4) v = v.slice(0, 4) + '.' + v.slice(4);
+        if (v.length > 7) v = v.slice(0, 7) + '.' + v.slice(7);
         this.value = v.slice(0, 10);
     });
 </script>
+
 </html>

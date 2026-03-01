@@ -25,6 +25,9 @@ public class Insumo {
     private String unidade;
     private String descricao;
 
+    @Column(name = "localizacao_padrao", length = 100)
+    private String localizacaoPadrao;
+
     @Column(name = "estoque_atual", precision = 10, scale = 3)
     @Builder.Default
     private BigDecimal estoqueAtual = BigDecimal.ZERO;

@@ -78,14 +78,11 @@
                             <span th:unless="${lote.ordemProducao != null}" class="text-muted">—</span>
                         </td>
                         <td class="text-center pe-4" style="vertical-align: middle;">
-                            <form th:action="@{/web/qualidade/aprovar/{id}(id=${lote.id})}" method="post"
-                                style="display:inline">
-                                <button type="submit" class="btn btn-sm btn-success px-3 me-2"
-                                    onclick="return confirm('Este lote passou em todas as análises de qualidade? Será liberado para venda agora.')"
-                                    title="Aprovar Lote">
-                                    <i class="fas fa-check-double me-1"></i> Liberar Lote
-                                </button>
-                            </form>
+                            <button class="btn btn-sm btn-success px-3 me-2 btn-aprovar" th:data-id="${lote.id}"
+                                th:data-lote="${lote.numeroLote}" th:data-local="${lote.produto?.localizacaoPadrao}"
+                                title="Aprovar Lote" data-bs-toggle="modal" data-bs-target="#modalAprovar">
+                                <i class="fas fa-check-double me-1"></i> Liberar Lote
+                            </button>
                             <button class="btn btn-sm btn-outline-danger px-3 btn-reprovar" th:data-id="${lote.id}"
                                 th:data-lote="${lote.numeroLote}" title="Reprovar Lote" data-bs-toggle="modal"
                                 data-bs-target="#modalReprovar">
@@ -95,6 +92,38 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <!-- MODAL APROVAR -->
+    <div class="modal fade" id="modalAprovar" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content" style="border-radius:16px;border:none">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-success"><i class="fas fa-check-circle me-2"></i>Aprovar Lote
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formAprovar" method="post">
+                    <div class="modal-body">
+                        <p class="mb-3">Você está aprovando o lote <strong id="loteAprovarNome">LOT-123</strong>. Ele
+                            entrará no estoque disponível e ficará pronto para faturamento.</p>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" style="font-size:0.85rem">Localização Físca no CD (WMS)
+                                <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="localizacao" id="loteAprovarLocalizacao"
+                                placeholder="Ex: Prateleira B2" required>
+                            <small class="text-muted">Defina em qual endereço do galpão este Lote foi/será
+                                guardado.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Confirmar Aprovação e Endereçar</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -132,13 +161,25 @@
 </main>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const btns = document.querySelectorAll('.btn-reprovar');
-        btns.forEach(btn => {
+        const btnsReprovar = document.querySelectorAll('.btn-reprovar');
+        btnsReprovar.forEach(btn => {
             btn.addEventListener('click', function () {
                 const id = this.getAttribute('data-id');
                 const lote = this.getAttribute('data-lote');
                 document.getElementById('loteReprovarNome').innerText = lote;
                 document.getElementById('formReprovar').action = '/web/qualidade/reprovar/' + id;
+            });
+        });
+
+        const btnsAprovar = document.querySelectorAll('.btn-aprovar');
+        btnsAprovar.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                const lote = this.getAttribute('data-lote');
+                const local = this.getAttribute('data-local');
+                document.getElementById('loteAprovarNome').innerText = lote;
+                document.getElementById('loteAprovarLocalizacao').value = (local && local !== 'null') ? local : '';
+                document.getElementById('formAprovar').action = '/web/qualidade/aprovar/' + id;
             });
         });
     });

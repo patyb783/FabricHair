@@ -6,11 +6,16 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-@Entity @Table(name = "produtos_acabados")
-@Data @NoArgsConstructor @AllArgsConstructor @Builder
+@Entity
+@Table(name = "produtos_acabados")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ProdutoAcabado {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -48,6 +53,9 @@ public class ProdutoAcabado {
     private Integer estoqueMinimo = 0;
 
     private String descricao;
+
+    @Column(name = "localizacao_padrao", length = 100)
+    private String localizacaoPadrao;
     private boolean ativo = true;
 
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL)

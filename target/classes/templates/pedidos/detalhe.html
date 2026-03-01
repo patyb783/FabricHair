@@ -76,11 +76,15 @@
                     </div>
                     <!-- CONFIRMADO -->
                     <div th:if="${pedido.status?.name() == 'CONFIRMADO'}">
+                        <a th:href="@{/web/logistica/picking/{id}(id=${pedido.id})}" target="_blank"
+                            class="btn btn-dark me-2" title="Imprimir Romaneio de Separação do Galpão">
+                            <i class="fas fa-print me-2"></i>Gerar Romaneio (WMS)
+                        </a>
                         <form th:action="@{/web/pedidos/{id}/faturar(id=${pedido.id})}" method="post"
                             style="display:inline">
                             <button type="submit" class="btn btn-warning text-dark"
                                 onclick="return confirm('Faturar pedido? O estoque será baixado automaticamente.')">
-                                <i class="fas fa-receipt me-2"></i>Faturar Pedido
+                                <i class="fas fa-receipt me-2"></i>Faturar e Expedir
                             </button>
                         </form>
                         <form th:action="@{/web/pedidos/{id}/cancelar(id=${pedido.id})}" method="post"

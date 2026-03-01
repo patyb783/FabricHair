@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Picking List - Pedido [[${pedido.numeroPedido}]]</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            margin: 20px;
+            color: #000;
+        }
+
+        .header {
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .barcode {
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            letter-spacing: 2px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .print-btn {
+            padding: 10px 20px;
+            background: #000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            float: right;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .print-btn:hover {
+            background: #333;
+        }
+
+        @media print {
+            .print-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <button class="print-btn" onclick="window.print()">🖨️ Imprimir Romaneio</button>
+
+    <div class="header">
+        <div>
+            <h2>Romaneio de Separação (WMS Picking List)</h2>
+            <p><strong>Pedido Relacionado:</strong> <span th:text="${pedido.numeroPedido}"></span></p>
+            <p><strong>Cliente:</strong> <span th:text="${pedido.cliente.razaoSocial}"></span></p>
+            <p><strong>Data de Emissão:</strong> <span
+                    th:text="${#temporals.format(pedido.criadoEm, 'dd/MM/yyyy HH:mm')}"></span></p>
+        </div>
+        <div style="text-align: right; line-height: 2;">
+            <p><strong>Data de Separação:</strong> ___/___/20__</p>
+            <p><strong>Separador:</strong> ______________________</p>
+        </div>
+    </div>
+
+    <p style="margin-bottom: 5px;"><em>* Os itens estão ordenados pela localização física no galpão para otimizar a sua
+            rota de separação.</em></p>
+    <p style="margin-top: 0;"><em>* A sugestão de Lote obedece a regra <strong>FEFO</strong> (primeiro a vencer,
+            primeiro a sair). Certifique-se de pegar o lote indicado.</em></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 5%">[ ]</th>
+                <th style="width: 15%">Local do Produto</th>
+                <th style="width: 35%">Produto a Coletar</th>
+                <th style="width: 10%; text-align: center;">Qtd</th>
+                <th style="width: 20%">Lote Sugerido (FEFO)</th>
+                <th style="width: 15%">Lote Coletado (Físico)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="item : ${pickingList}">
+                <td style="text-align: center;">
+                    <div style="width:20px;height:20px;border:2px solid #000;display:inline-block"></div>
+                </td>
+                <td><strong th:text="${item.localizacaoPadrao}" style="font-size: 1.1em;"></strong></td>
+                <td>
+                    <span th:text="${item.produtoNome}" style="font-weight: bold; font-size: 1.1em;"></span><br>
+                    <small style="color: #666">SKU: <span th:text="${item.sku}"></span></small>
+                </td>
+                <td style="font-size: 20px; font-weight: bold; text-align: center" th:text="${item.quantidade}"></td>
+                <td>
+                    <strong th:text="${item.loteSugerido}" style="font-size: 1.1em;"></strong><br>
+                    <small style="color: #666" th:text="${'Endereço: '+item.loteLocalizacao}"></small>
+                </td>
+                <td>
+                    <small style="color: #999">anotar se diferente</small>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+</html>

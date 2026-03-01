@@ -23,10 +23,11 @@ public class QualidadeController {
     }
 
     @PostMapping("/aprovar/{id}")
-    public String aprovar(@PathVariable Long id, Principal principal, RedirectAttributes ra) {
+    public String aprovar(@PathVariable Long id, @RequestParam(required = false) String localizacao,
+            Principal principal, RedirectAttributes ra) {
         try {
             String analista = principal != null ? principal.getName() : "Sistema";
-            qualidadeService.aprovarLote(id, analista);
+            qualidadeService.aprovarLote(id, analista, localizacao);
             ra.addFlashAttribute("sucesso", "Lote aprovado com sucesso! Estoque do produto atualizado.");
         } catch (Exception e) {
             ra.addFlashAttribute("erro", "Erro ao aprovar lote: " + e.getMessage());
