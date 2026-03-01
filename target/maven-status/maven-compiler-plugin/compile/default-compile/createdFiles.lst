@@ -35,6 +35,7 @@ com\fabricahair\model\PedidoItem$PedidoItemBuilder.class
 com\fabricahair\repository\OrdemProducaoRepository.class
 com\fabricahair\service\ProdutoService.class
 com\fabricahair\service\QualidadeService.class
+com\fabricahair\service\IotService$1.class
 com\fabricahair\model\MovimentacaoEstoque$TipoMovimentacao.class
 com\fabricahair\model\ConfiguracaoEmpresa$ConfiguracaoEmpresaBuilder.class
 com\fabricahair\controller\ExpedicaoController.class

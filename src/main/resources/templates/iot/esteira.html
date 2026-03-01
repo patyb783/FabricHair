@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Monitor de Esteiras (OEE)',
+    activePage='iot_esteira',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{::script}
+)}">
+<main>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h4 mb-0"><i class="fas fa-cogs me-2 text-primary"></i>Monitoramento de Linhas (Esteiras)</h2>
+            <p class="text-muted mb-0"><small>Acompanhamento de OEE e unidades processadas pelos PLCs da fábrica em
+                    tempo real (Auto-Refresh).</small></p>
+        </div>
+        <button class="btn btn-outline-primary" onclick="ligarMonitoramento()">
+            <i class="fas fa-play me-2"></i>Live Monitor
+        </button>
+    </div>
+
+    <div class="row g-4" id="painelEsteiras">
+        <div th:if="${#lists.isEmpty(sensores)}" class="col-12 text-center py-5">
+            <h5 class="text-muted"><i class="fas fa-network-wired fa-2x mb-3 d-block opacity-25"></i>Nenhum CLP de
+                Esteira configurado.</h5>
+        </div>
+
+        <div class="col-md-6" th:each="sensor : ${sensores}">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5 class="fw-bold text-dark mb-0"><i class="fas fa-conveyor-belt me-2 text-secondary"></i><span
+                                th:text="${sensor.nome}">Linha 1</span></h5>
+                        <span th:if="${sensor.status.name() == 'ONLINE'}" class="badge bg-success shadow-sm"><i
+                                class="fas fa-bolt tb-blink me-1"></i> ATIVA</span>
+                        <span th:if="${sensor.status.name() == 'OFFLINE'}" class="badge bg-danger shadow-sm">
+                            INATIVA</span>
+                    </div>
+
+                    <div class="row text-center mt-4">
+                        <div class="col-6 border-end">
+                            <small class="text-muted d-block text-uppercase fw-bold mb-1">Unidades Hoje</small>
+                            <h2 class="display-5 fw-bold text-primary mb-0 val-unidades" th:data-id="${sensor.id}"
+                                th:text="${sensor.valorAtual != null ? sensor.valorAtual : '0'}">0</h2>
+                            <small class="text-muted">frascos</small>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block text-uppercase fw-bold mb-1">Ritmo (BPM)</small>
+                            <h2 class="display-5 fw-bold text-success mb-0 rhythm-display">--</h2>
+                            <small class="text-muted">bat/min</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light border-0 px-4 py-3">
+                    <small class="text-muted"><i class="fas fa-clock me-1"></i>Última detecção: <span
+                            class="fw-600 val-time" th:data-id="${sensor.id}"
+                            th:text="${sensor.ultimoPing != null ? #temporals.format(sensor.ultimoPing, 'HH:mm:ss') : '--:--:--'}"></span></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    let pollInterval;
+    function ligarMonitoramento() {
+        if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+            alert("Monitoramento ao vivo PAUSADO.");
+            return;
+        }
+        alert("Monitoramento ao vivo INICIADO. Tela atualizada a cada 2s.");
+        pollInterval = setInterval(() => {
+            const paineis = document.querySelectorAll('.val-unidades');
+            paineis.forEach(painel => {
+                const id = painel.getAttribute('data-id');
+                fetch('/web/iot/leitura-atual/' + id)
+                    .then(res => res.text())
+                    .then(val => {
+                        if (val && val !== 'null') {
+                            const oldVal = parseInt(painel.innerText);
+                            const newVal = parseInt(val);
+                            if (newVal > oldVal) {
+                                painel.classList.add('text-success');
+                                setTimeout(() => painel.classList.remove('text-success'), 500); // blink pulse
+                            }
+                            painel.innerText = val;
+                        }
+                    });
+            });
+        }, 2000);
+    }
+</script>
+
+</html>

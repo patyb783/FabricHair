@@ -439,12 +439,18 @@
             <a href="/web/producao/lotes" class="menu-item" th:classappend="${activePage == 'lotes'} ? 'active'">
                 <i class="fas fa-boxes-stacked"></i> Lotes
             </a>
+            <a href="/web/iot/esteiras" class="menu-item" th:classappend="${activePage == 'iot_esteira'} ? 'active'">
+                <i class="fas fa-cogs text-info"></i> Monitor de Esteiras
+            </a>
 
             <!-- QUALIDADE -->
             <div class="menu-section">Qualidade</div>
             <a href="/web/qualidade/quarentena" class="menu-item"
                 th:classappend="${activePage == 'quarentena'} ? 'active'">
                 <i class="fas fa-microscope"></i> Quarentena
+            </a>
+            <a href="/web/iot/temperatura" class="menu-item" th:classappend="${activePage == 'iot_temp'} ? 'active'">
+                <i class="fas fa-thermometer-half"></i> Termômetros IoT
             </a>
 
             <!-- LOGÍSTICA -->
@@ -498,12 +504,17 @@
             <a href="/web/admin/usuarios" sec:authorize="hasRole('ADMIN')" class="menu-item"
                 th:classappend="${activePage == 'admin_usuarios'} ? 'active'">
                 <i class="fas fa-users-cog"></i> Usuários
-                <!-- AJUDA -->
-                <div class="menu-section mt-2 border-top pt-3 border-secondary"
-                    style="border-color: rgba(255,255,255,.05) !important;">Suporte</div>
-                <a href="/web/ajuda" class="menu-item" th:classappend="${activePage == 'ajuda'} ? 'active'">
-                    <i class="fas fa-circle-question" style="color:#60a5fa"></i> Manual do Usuário
-                </a>
+            </a>
+            <a href="/web/admin/iot" sec:authorize="hasRole('ADMIN')" class="menu-item"
+                th:classappend="${activePage == 'admin'} ? 'active'">
+                <i class="fas fa-microchip"></i> Sensores IoT
+            </a>
+            <!-- AJUDA -->
+            <div class="menu-section mt-2 border-top pt-3 border-secondary"
+                style="border-color: rgba(255,255,255,.05) !important;">Suporte</div>
+            <a href="/web/ajuda" class="menu-item" th:classappend="${activePage == 'ajuda'} ? 'active'">
+                <i class="fas fa-circle-question" style="color:#60a5fa"></i> Manual do Usuário
+            </a>
         </div>
 
         <div class="sidebar-footer">

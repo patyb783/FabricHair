@@ -55,10 +55,15 @@ public class OrdemProducaoController {
         return "redirect:/web/producao/ordens";
     }
 
+    @Autowired
+    private com.fabricahair.repository.DispositivoIotRepository dispositivoRepository;
+
     @GetMapping("/{id}")
     public String detalhe(@PathVariable Long id, Model model) {
         OrdemProducao op = opService.buscarPorId(id);
         model.addAttribute("op", op);
+        model.addAttribute("balancas",
+                dispositivoRepository.findByTipoSensor(com.fabricahair.model.DispositivoIot.TipoSensor.BALANCA));
         return "producao/detalhe";
     }
 

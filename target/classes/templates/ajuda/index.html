@@ -200,13 +200,47 @@
                     </ul>
                 </div>
             </div>
+            <!-- SENSORES IOT -->
+            <div class="accordion-item border rounded shadow-sm mb-3">
+                <h2 class="accordion-header" id="headingIot">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseIot" aria-expanded="false" aria-controls="collapseIot"
+                        style="font-weight: 600; font-size: 1rem;">
+                        <i class="fas fa-satellite-dish me-2 text-info"></i> 5. Integração IoT e Indústria 4.0
+                    </button>
+                </h2>
+                <div id="collapseIot" class="accordion-collapse collapse" aria-labelledby="headingIot"
+                    data-bs-parent="#accordionAjuda">
+                    <div class="accordion-body" style="font-size: 0.9rem; line-height: 1.6; color: #475569;">
+                        <h5 style="color: #1e293b; font-weight: 600;">Automação do Chão de Fábrica</h5>
+                        <p>O FabricHair ERP possui comunicação direta via rede com o maquinário físico através de
+                            webhooks, garantindo controle em tempo real e fim dos erros por digitação manual.</p>
+                        <ul>
+                            <li><strong>Monitoramento Térmico:</strong> Acesse o dashboard em <b>Qualidade &gt;
+                                    Termômetros IoT</b> para acompanhar sensores de temperatura e umidade da área de
+                                Quarentena. Se o ambiente aquecer demais, você saberá em tempo real.</li>
+                            <li><strong>Monitoramento de Esteiras (OEE):</strong> Acesse <b>Produção &gt; Monitor de
+                                    Esteiras</b> para acompanhar a contagem de unidades envasadas por minuto na linha de
+                                produção (via Pulsos PLC diretamente do painel da máquina).</li>
+                            <li><strong>Balanças Autônomas:</strong> A tela de "Finalizar Produção e Gerar Lote" possui
+                                integração direta. Basta colocar o tanque na balança, clicar em <i>"Ler Peso da Balança
+                                    IoT"</i> que o sistema injeta os Kilos (Kg) exatos na Ordem de Produção.</li>
+                            <li><strong>Integração RFID:</strong> O sistema possui endpoints receptivos
+                                (`/api/iot/push`) que gravam as aproximações das empilhadeiras ao cruzar o Portal WMS do
+                                Centro de Distribuição, engatilhando a baixa de estoque e o Faturamento Múltiplo do
+                                Romaneio sem precisar usar o mouse.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
             <!-- FAQ / PERGUNTAS FREQUENTES -->
             <div class="accordion-item border rounded shadow-sm mb-5">
                 <h2 class="accordion-header" id="headingFaq">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapseFaq" aria-expanded="false" aria-controls="collapseFaq"
                         style="font-weight: 600; font-size: 1rem;">
-                        <i class="fas fa-question-circle me-2 text-secondary"></i> 5. Perguntas Frequentes (FAQ)
+                        <i class="fas fa-question-circle me-2 text-secondary"></i> 6. Perguntas Frequentes (FAQ)
                     </button>
                 </h2>
                 <div id="collapseFaq" class="accordion-collapse collapse" aria-labelledby="headingFaq"

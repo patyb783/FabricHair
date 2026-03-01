@@ -268,13 +268,64 @@
                             <div class="col-md-6">
                                 <label class="form-label fw-600" style="font-weight:600">Quantidade Produzida <span
                                         class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" name="quantidadeProduzida"
+                                <div class="input-group mb-1">
+                                    <input type="number" class="form-control fw-bold fs-5 text-primary"
+                                        id="quantidadeProduzidaInput" name="quantidadeProduzida"
                                         th:value="${op.quantidadePlanejada}" step="0.001" min="0.001" required>
                                     <span class="input-group-text">UN</span>
                                 </div>
-                                <small class="text-muted">Planejado: <span
-                                        th:text="${op.quantidadePlanejada}">0</span></small>
+                                <div th:if="${balancas != null and !balancas.isEmpty()}" class="mt-2 p-2 rounded"
+                                    style="background:var(--bs-primary-bg-subtle);">
+                                    <label class="form-label"
+                                        style="font-size:0.75rem; color:var(--bs-primary-text-emphasis);"><i
+                                            class="fas fa-satellite-dish me-1"></i>Ler Peso da Balança IoT</label>
+                                    <div class="d-flex gap-2">
+                                        <select class="form-select form-select-sm" id="balancaSelect">
+                                            <option value="">(Selecione a Balança)</option>
+                                            <option th:each="b : ${balancas}" th:value="${b.id}" th:text="${b.nome}">
+                                            </option>
+                                        </select>
+                                        <button type="button" class="btn btn-sm btn-primary" onclick="lerBalanca()"
+                                            title="Obter leitura agora">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </div>
+                                    <small id="statusBalanca" class="d-block mt-1 text-muted"
+                                        style="font-size: 0.70rem;"></small>
+                                </div>
+                                <script>
+                                    let balancaInterval;
+                                    function lerBalanca() {
+                                        const balancaId = document.getElementById('balancaSelect').value;
+                                        if (!balancaId) { alert('Selecione uma balança primeiro'); return; }
+
+                                        const status = document.getElementById('statusBalanca');
+                                        status.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Lendo hardware...';
+
+                                        fetch('/web/iot/leitura-atual/' + balancaId)
+                                            .then(res => res.text())
+                                            .then(val => {
+                                                if (val && !isNaN(val)) {
+                                                    document.getElementById('quantidadeProduzidaInput').value = parseFloat(val);
+                                                    status.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i> Lento com sucesso: ' + val;
+                                                } else {
+                                                    status.innerHTML = '<i class="fas fa-exclamation-triangle text-warning me-1"></i> Leitura inválida: ' + val;
+                                                }
+                                            })
+                                            .catch(err => {
+                                                status.innerHTML = '<i class="fas fa-times-circle text-danger me-1"></i> Erro de Rede com o IoT';
+                                            });
+                                    }
+
+                                    document.getElementById('balancaSelect').addEventListener('change', function (e) {
+                                        clearInterval(balancaInterval);
+                                        if (e.target.value) {
+                                            lerBalanca();
+                                            // Faz o polling da balança a cada 3 segundos enquanto a OP está aberta
+                                            balancaInterval = setInterval(lerBalanca, 3000);
+                                        }
+                                    });
+                                </script>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-600" style="font-weight:600">Validade do Lote</label>

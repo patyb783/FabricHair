@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR" th:replace="~{layout/base :: layout(
+    pageTitle='Dispositivos IoT',
+    activePage='admin',
+    content=~{::main},
+    extraHead=~{},
+    extraScript=~{::script}
+)}">
+<main>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h4 mb-0"><i class="fas fa-microchip me-2 text-primary"></i>Gestão de Sensores (IoT)</h2>
+            <p class="text-muted mb-0"><small>Controle e provisionamento de equipamentos autônomos de chão de fábrica e
+                    CD.</small></p>
+        </div>
+        <div>
+            <a href="/web/admin/iot/novo" class="btn btn-primary shadow-sm"><i class="fas fa-plus me-2"></i>Provisionar
+                Sensor</a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Dispositivo</th>
+                        <th>Endereço Físico (MAC/Token)</th>
+                        <th>Tipo do Sensor</th>
+                        <th>IP Local</th>
+                        <th class="text-center">Status (Zabbix)</th>
+                        <th class="text-center">Última Leitura</th>
+                        <th class="text-end pe-4">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${#lists.isEmpty(dispositivos)}">
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="fas fa-network-wired fa-3x mb-3 opacity-25"></i>
+                            <p class="mb-0">Nenhum sensor de automação provisionado na rede do ERP.</p>
+                        </td>
+                    </tr>
+                    <tr th:each="d : ${dispositivos}">
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary bg-opacity-10 p-2 rounded me-3 text-primary">
+                                    <i class="fas fa-server"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark" th:text="${d.nome}">Termômetro 01</div>
+                                    <small class="text-muted">ID: <span th:text="${d.id}"></span></small>
+                                </div>
+                            </div>
+                        </td>
+                        <td><code class="text-secondary bg-light px-2 py-1 rounded"
+                                th:text="${d.macAddress}">AB:CD:EF:12:34</code></td>
+                        <td>
+                            <span class="badge bg-secondary" th:if="${d.tipoSensor.name() == 'TEMPERATURA'}"><i
+                                    class="fas fa-thermometer-half me-1"></i> Temperatura</span>
+                            <span class="badge bg-secondary" th:if="${d.tipoSensor.name() == 'BALANCA'}"><i
+                                    class="fas fa-weight-hanging me-1"></i> Balança</span>
+                            <span class="badge bg-primary" th:if="${d.tipoSensor.name() == 'ESTEIRA'}"><i
+                                    class="fas fa-cogs me-1"></i> Esteira OEE</span>
+                            <span class="badge bg-info text-dark" th:if="${d.tipoSensor.name() == 'RFID'}"><i
+                                    class="fas fa-wifi me-1"></i> Portal RFID</span>
+                        </td>
+                        <td th:text="${d.ipLocal ?: '--'}">192.168.1.10</td>
+                        <td class="text-center">
+                            <span th:if="${d.status.name() == 'ONLINE'}" class="badge bg-success"><i
+                                    class="fas fa-circle tb-blink me-1"></i> ONLINE</span>
+                            <span th:if="${d.status.name() == 'OFFLINE'}" class="badge bg-danger"><i
+                                    class="fas fa-circle text-white me-1"></i> OFFLINE</span>
+                        </td>
+                        <td class="text-center">
+                            <h5 class="mb-0 fw-bold" th:text="${d.valorAtual ?: '---'}"></h5>
+                            <small class="text-muted"
+                                th:text="${d.ultimoPing != null ? #temporals.format(d.ultimoPing, 'HH:mm:ss dd/MM') : 'Nunca sincronizou'}">10:00:23</small>
+                        </td>
+                        <td class="text-end pe-4">
+                            <button class="btn btn-sm btn-outline-success" th:onclick="'simular(' + ${d.id} + ')'"
+                                title="Simular Ping de Hardware">
+                                <i class="fas fa-bolt"></i>
+                            </button>
+                            <a th:href="@{/web/admin/iot/editar/{id}(id=${d.id})}"
+                                class="btn btn-sm btn-secondary mx-1">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form th:action="@{/web/admin/iot/excluir/{id}(id=${d.id})}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('ATENÇÃO: Este sensor será expulso da rede industrial do ERP. Deseja revogar acesso?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+<script>
+    function simular(id) {
+        let valor = prompt("Qual carga util (JSON de Payload / Valor Bruto) o sensor enviará para o ERP agora?");
+        if (valor != null && valor.trim() !== "") {
+            fetch(`/web/admin/iot/simular-ping/${id}?valor=${encodeURIComponent(valor)}`, {
+                method: 'POST'
+            }).then(res => {
+                if (res.ok) window.location.reload();
+                else alert("Falha na simulação");
+            });
+        }
+    }
+</script>
+
+</html>
