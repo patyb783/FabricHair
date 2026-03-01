@@ -114,6 +114,7 @@ com\fabricahair\controller\OrdemProducaoController.class
 com\fabricahair\model\Transportadora$TransportadoraBuilder.class
 com\fabricahair\model\ItemEntrada$TipoItemEntrada.class
 com\fabricahair\service\PedidoVendaService.class
+com\fabricahair\service\BoletoService.class
 com\fabricahair\model\Transportadora.class
 com\fabricahair\security\SecurityConfig.class
 com\fabricahair\model\NfeRegistro$NfeRegistroBuilder.class

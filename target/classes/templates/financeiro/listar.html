@@ -77,6 +77,10 @@
                                     <i class="fas fa-shopping-cart me-1"></i> Pedido #<span
                                         th:text="${titulo.pedidoVenda.id}"></span>
                                 </div>
+                                <div th:if="${titulo.linhaDigitavel != null}" class="text-muted"
+                                    style="font-size: 0.7rem; font-family: monospace;">
+                                    <i class="fas fa-barcode me-1"></i> <span th:text="${titulo.linhaDigitavel}"></span>
+                                </div>
                             </td>
                             <td>
                                 <span
@@ -104,9 +108,25 @@
                                         class="fas fa-ban me-1"></i>Cancelado</span>
                             </td>
                             <td>
+                                <!-- Ação: Gerar Boleto (Apenas para Contas a RECEBER sem linha digitável) -->
+                                <form
+                                    th:if="${tipoPage == 'RECEBER' and titulo.status.name() == 'PENDENTE' and titulo.linhaDigitavel == null}"
+                                    th:action="@{/web/financeiro/{id}/gerar-boleto(id=${titulo.id})}" method="post"
+                                    style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary" title="Gerar Boleto">
+                                        <i class="fas fa-barcode"></i>
+                                    </button>
+                                </form>
+
+                                <!-- Ação: Imprimir Boleto Gerado -->
+                                <a th:if="${titulo.linhaDigitavel != null}" th:href="${titulo.linkBoleto}"
+                                    target="_blank" class="btn btn-sm btn-primary" title="Imprimir Arquivo de Cobrança">
+                                    <i class="fas fa-print"></i>
+                                </a>
+
                                 <button th:if="${titulo.status.name() == 'PENDENTE'}"
                                     class="btn btn-sm btn-outline-success" data-bs-toggle="modal"
-                                    th:data-bs-target="'#modalBaixa' + ${titulo.id}" title="Dar Baixa">
+                                    th:data-bs-target="'#modalBaixa' + ${titulo.id}" title="Dar Baixa (Pagar/Receber)">
                                     <i class="fas fa-check-double"></i>
                                 </button>
                                 <button th:if="${titulo.status.name() == 'PENDENTE'}"

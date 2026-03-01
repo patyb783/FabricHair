@@ -1,10 +1,13 @@
 package com.fabricahair.controller;
 
 import com.fabricahair.model.PedidoVenda;
+import com.fabricahair.model.NfeRegistro;
+import com.fabricahair.repository.NfeRegistroRepository;
 import com.fabricahair.repository.ProdutoAcabadoRepository;
-import com.fabricahair.service.ClienteB2BService;
-import com.fabricahair.service.PedidoVendaService;
 import com.fabricahair.repository.TransportadoraRepository;
+import com.fabricahair.service.ClienteB2BService;
+import com.fabricahair.service.NfeService;
+import com.fabricahair.service.PedidoVendaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,6 +31,10 @@ public class PedidoVendaController {
     private ProdutoAcabadoRepository produtoRepository;
     @Autowired
     private TransportadoraRepository transportadoraRepository;
+    @Autowired
+    private NfeService nfeService;
+    @Autowired
+    private NfeRegistroRepository nfeRepository;
 
     @GetMapping
     public String listar(Model model) {
@@ -66,6 +73,7 @@ public class PedidoVendaController {
     @GetMapping("/{id}")
     public String detalhe(@PathVariable Long id, Model model) {
         model.addAttribute("pedido", pedidoService.buscarPorId(id));
+        model.addAttribute("nfe", nfeRepository.findByPedidoId(id).orElse(null));
         return "pedidos/detalhe";
     }
 
@@ -111,5 +119,27 @@ public class PedidoVendaController {
             ra.addFlashAttribute("erro", e.getMessage());
         }
         return "redirect:/web/pedidos";
+    }
+
+    @PostMapping("/{id}/emitir-nfe")
+    public String emitirNfe(@PathVariable Long id, RedirectAttributes ra) {
+        try {
+            NfeRegistro nfe = nfeService.emitirNfe(id);
+            ra.addFlashAttribute("sucesso", "NF-e enviada para Sefaz. Status: " + nfe.getStatus());
+        } catch (Exception e) {
+            ra.addFlashAttribute("erro", "Falha na Emissão Fiscal: " + e.getMessage());
+        }
+        return "redirect:/web/pedidos/" + id;
+    }
+
+    @PostMapping("/{id}/consultar-nfe")
+    public String consultarNfe(@PathVariable Long id, @RequestParam Long nfeId, RedirectAttributes ra) {
+        try {
+            NfeRegistro nfe = nfeService.consultarStatus(nfeId);
+            ra.addFlashAttribute("sucesso", "Status da NF-e atualizado (" + nfe.getStatus() + ").");
+        } catch (Exception e) {
+            ra.addFlashAttribute("erro", "Falha na Consulta Sefaz: " + e.getMessage());
+        }
+        return "redirect:/web/pedidos/" + id;
     }
 }

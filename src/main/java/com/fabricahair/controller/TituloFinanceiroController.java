@@ -2,6 +2,7 @@ package com.fabricahair.controller;
 
 import com.fabricahair.model.TituloFinanceiro;
 import com.fabricahair.repository.TituloFinanceiroRepository;
+import com.fabricahair.service.BoletoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,6 +19,9 @@ public class TituloFinanceiroController {
 
     @Autowired
     private TituloFinanceiroRepository tituloRepository;
+
+    @Autowired
+    private BoletoService boletoService;
 
     @GetMapping("/pagar")
     public String listarContasPagar(Model model) {
@@ -87,5 +91,16 @@ public class TituloFinanceiroController {
         tituloRepository.save(titulo);
         ra.addFlashAttribute("sucesso", "Título cancelado.");
         return "redirect:/web/financeiro/" + titulo.getTipo().name().toLowerCase();
+    }
+
+    @PostMapping("/{id}/gerar-boleto")
+    public String gerarBoleto(@PathVariable Long id, RedirectAttributes ra) {
+        try {
+            TituloFinanceiro titulo = boletoService.gerarBoleto(id);
+            ra.addFlashAttribute("sucesso", "Boleto bancário gerado com sucesso para o título " + titulo.getId());
+        } catch (Exception e) {
+            ra.addFlashAttribute("erro", "Erro ao gerar boleto: " + e.getMessage());
+        }
+        return "redirect:/web/financeiro/receber";
     }
 }

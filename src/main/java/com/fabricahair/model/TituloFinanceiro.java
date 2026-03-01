@@ -44,6 +44,16 @@ public class TituloFinanceiro {
     @Builder.Default
     private StatusTitulo status = StatusTitulo.PENDENTE;
 
+    // Dados de Emissão de Boleto Bancário (Integração)
+    @Column(name = "link_boleto", length = 500)
+    private String linkBoleto;
+
+    @Column(name = "linha_digitavel", length = 100)
+    private String linhaDigitavel;
+
+    @Column(name = "nosso_numero", length = 50)
+    private String nossoNumero;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pedido_venda_id")
     private PedidoVenda pedidoVenda;
