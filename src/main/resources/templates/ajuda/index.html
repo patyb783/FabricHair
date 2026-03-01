@@ -200,83 +200,156 @@
                     </ul>
                 </div>
             </div>
-            <!-- SENSORES IOT -->
-            <div class="accordion-item border rounded shadow-sm mb-3">
-                <h2 class="accordion-header" id="headingIot">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#collapseIot" aria-expanded="false" aria-controls="collapseIot"
-                        style="font-weight: 600; font-size: 1rem;">
-                        <i class="fas fa-satellite-dish me-2 text-info"></i> 5. Integração IoT e Indústria 4.0
-                    </button>
-                </h2>
-                <div id="collapseIot" class="accordion-collapse collapse" aria-labelledby="headingIot"
-                    data-bs-parent="#accordionAjuda">
-                    <div class="accordion-body" style="font-size: 0.9rem; line-height: 1.6; color: #475569;">
-                        <h5 style="color: #1e293b; font-weight: 600;">Automação do Chão de Fábrica</h5>
-                        <p>O FabricHair ERP possui comunicação direta via rede com o maquinário físico através de
-                            webhooks, garantindo controle em tempo real e fim dos erros por digitação manual.</p>
-                        <ul>
-                            <li><strong>Monitoramento Térmico:</strong> Acesse o dashboard em <b>Qualidade &gt;
-                                    Termômetros IoT</b> para acompanhar sensores de temperatura e umidade da área de
-                                Quarentena. Se o ambiente aquecer demais, você saberá em tempo real.</li>
-                            <li><strong>Monitoramento de Esteiras (OEE):</strong> Acesse <b>Produção &gt; Monitor de
-                                    Esteiras</b> para acompanhar a contagem de unidades envasadas por minuto na linha de
-                                produção (via Pulsos PLC diretamente do painel da máquina).</li>
-                            <li><strong>Balanças Autônomas:</strong> A tela de "Finalizar Produção e Gerar Lote" possui
-                                integração direta. Basta colocar o tanque na balança, clicar em <i>"Ler Peso da Balança
-                                    IoT"</i> que o sistema injeta os Kilos (Kg) exatos na Ordem de Produção.</li>
-                            <li><strong>Integração RFID:</strong> O sistema possui endpoints receptivos
-                                (`/api/iot/push`) que gravam as aproximações das empilhadeiras ao cruzar o Portal WMS do
-                                Centro de Distribuição, engatilhando a baixa de estoque e o Faturamento Múltiplo do
-                                Romaneio sem precisar usar o mouse.</li>
-                        </ul>
-                    </div>
+        </div>
+
+        <!-- SENSORES IOT -->
+        <div class="accordion-item border rounded shadow-sm mb-3">
+            <h2 class="accordion-header" id="headingIot">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseIot" aria-expanded="false" aria-controls="collapseIot"
+                    style="font-weight: 600; font-size: 1rem;">
+                    <i class="fas fa-satellite-dish me-2 text-info"></i> 5. Integração IoT e Indústria 4.0
+                </button>
+            </h2>
+            <div id="collapseIot" class="accordion-collapse collapse" aria-labelledby="headingIot"
+                data-bs-parent="#accordionAjuda">
+                <div class="accordion-body" style="font-size: 0.9rem; line-height: 1.6; color: #475569;">
+                    <h5 style="color: #1e293b; font-weight: 600;">Automação do Chão de Fábrica (Internet das Coisas)
+                    </h5>
+                    <p>O FabricHair ERP foi construído para atuar como o cérebro da sua Indústria 4.0. Ele possui
+                        comunicação nativa com maquinários e biometrias usando o protocolo de Webhooks no endpoint
+                        unificado <code>/api/iot/push</code>.</p>
+                    <ul>
+                        <li><strong>Cadastro Segregado:</strong> Através do painel Admin &gt; Dispositivos IoT, você
+                            deve cadastrar o endereço MAC e obter o <i>Token de Autenticação</i> único do sensor.</li>
+                        <li><strong>Monitoramento Térmico (Frio):</strong> Sensores DHT11/DHT22 ou sondas industriais
+                            enviam requisições GET/POST. O ERP renderiza automaticamente na tela <b>Qualidade &gt;
+                                Termômetros IoT</b> os gráficos em tempo real que fiscalizam o armazenamento da
+                            Quarentena. Se o ambiente aquecer demais, você saberá na hora.</li>
+                        <li><strong>Monitoramento de Esteiras (OEE):</strong> Conecte PLCs industriais diretamente ao
+                            ERP. Acesse <b>Produção &gt; Monitor de Esteiras</b> para acompanhar a contagem de unidades
+                            envasadas por minuto na linha de produção. A tela calcula a cadência e prevê a hora de
+                            encerramento da Ordem de Produção OEE.</li>
+                        <li><strong>Balanças Autônomas TCP/IP:</strong> Esqueça pranchetas e erros de digitação. Na tela
+                            de "Finalizar Produção", basta colocar o tambor na balança e clicar em <i>"Ler Peso da
+                                Balança IoT"</i> que o ERP captura o peso via rede instântaneamente e aplica a conversão
+                            de Kg na baixa.</li>
+                        <li><strong>Módulo RFID WMS (Logística):</strong> O sistema aceita o envio em massa de Tags
+                            RFID. Quando a empilhadeira passar pelo portal do Centro de Distribuição carregando os
+                            lotes, o ERP entenderá como "Bipagem" automática de Packing, conferindo os produtos e
+                            deduzindo o estoque instantaneamente.</li>
+                    </ul>
                 </div>
             </div>
+        </div>
 
-            <!-- FAQ / PERGUNTAS FREQUENTES -->
-            <div class="accordion-item border rounded shadow-sm mb-5">
-                <h2 class="accordion-header" id="headingFaq">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#collapseFaq" aria-expanded="false" aria-controls="collapseFaq"
-                        style="font-weight: 600; font-size: 1rem;">
-                        <i class="fas fa-question-circle me-2 text-secondary"></i> 6. Perguntas Frequentes (FAQ)
-                    </button>
-                </h2>
-                <div id="collapseFaq" class="accordion-collapse collapse" aria-labelledby="headingFaq"
-                    data-bs-parent="#accordionAjuda">
-                    <div class="accordion-body" style="font-size: 0.9rem; line-height: 1.6; color: #475569;">
-                        <div class="mb-4">
-                            <h5 style="color: #1e293b; font-weight: 600;">O ERP gera Códigos de Barras (EAN-13)
-                                automaticamente?</h5>
-                            <p><strong>Não. E isso é para sua segurança legal e comercial.</strong> O Brasil segue o
-                                padrão global de varejo ditado pela <em>GS1 Brasil</em>. Se o sistema gerasse números
-                                aleatórios de 13 dígitos da nossa cabeça, seu produto apitaria em todos os caixas de
-                                supermercado ou farmácia do país como se fosse uma "Coca-Cola" ou daria conflito de
-                                cadastro nos grandes varejistas.</p>
-                            <p><strong>A regra legal é:</strong> A sua indústria precisa se afiliar à GS1 Brasil para
-                                comprar o "Prefixo de Empresa", e você mesmo gera os últimos dígitos oficiais para os
-                                seus novos produtos no painel deles. Tendo o número oficial em mãos, você digita ele no
-                                campo <strong>EAN (Código de Barras)</strong> lá na tela de Cadastrar Produto do ERP. O
-                                nosso sistema já está configurado e travado para receber apenas os 13 dígitos originais.
-                            </p>
-                        </div>
+        <!-- FINANCEIRO -->
+        <div class="accordion-item border rounded shadow-sm mb-3">
+            <h2 class="accordion-header" id="headingFinanceiro">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseFinanceiro" aria-expanded="false" aria-controls="collapseFinanceiro"
+                    style="font-weight: 600; font-size: 1rem;">
+                    <i class="fas fa-hand-holding-dollar me-2 text-success"></i> 6. Controle Financeiro
+                </button>
+            </h2>
+            <div id="collapseFinanceiro" class="accordion-collapse collapse" aria-labelledby="headingFinanceiro"
+                data-bs-parent="#accordionAjuda">
+                <div class="accordion-body" style="font-size: 0.9rem; line-height: 1.6; color: #475569;">
+                    <h5 style="color: #1e293b; font-weight: 600;">Contas a Pagar e Receber</h5>
+                    <p>O módulo Financeiro atua nos bastidores conectando todas as áreas operacionais. A sua tesouraria
+                        deve focar essencialmente na baixa bancária.</p>
+                    <ul>
+                        <li><strong>Títulos a Receber (Vendas):</strong> Quando o comercial faturar um Pedido de Venda
+                            via WMS, o sistema gera <b>Títulos a Receber</b> automaticamente em nome daquele Cliente B2B
+                            com prazo de vencimento padrão para 30 dias.</li>
+                        <li><strong>Títulos a Pagar (Custos/Despesas):</strong> O Administrador poderá dar entrada
+                            manual de boletos externos e despesas de fábrica (energia, impostos) como títulos a
+                            <b>PAGAR</b>.</li>
+                        <li><strong>Baixas (Estorno ou Pagamento):</strong> Na listagem em <b>Financeiro</b>, títulos
+                            vencidos ficarão alertados em vermelho. Para liquidar uma pendência, basta clicar em "Dar
+                            Baixa/Pagar", informando ao sistema que o capital de fato transitou na conta bancária da
+                            empresa.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-                        <div class="mb-4">
-                            <h5 style="color: #1e293b; font-weight: 600;">Qual é a diferença pro código SKU?</h5>
-                            <p>O <strong>SKU - Stock-Keeping Unit</strong> (Unidade de Manutenção de Estoque) é 100%
+        <!-- RH E PONTO -->
+        <div class="accordion-item border rounded shadow-sm mb-3">
+            <h2 class="accordion-header" id="headingRh">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseRh" aria-expanded="false" aria-controls="collapseRh"
+                    style="font-weight: 600; font-size: 1rem;">
+                    <i class="fas fa-users-cog me-2 text-primary"></i> 7. Recursos Humanos (RH) e Ponto Eletrônico
+                </button>
+            </h2>
+            <div id="collapseRh" class="accordion-collapse collapse" aria-labelledby="headingRh"
+                data-bs-parent="#accordionAjuda">
+                <div class="accordion-body" style="font-size: 0.9rem; line-height: 1.6; color: #475569;">
+                    <h5 style="color: #1e293b; font-weight: 600;">Folha e Auditoria de Presença</h5>
+                    <p>O controle trabalhista da sua indústria fica registrado internamente também na nuvem de forma
+                        descentralizada pelos computadores ou celulares, dispensando as tradicionais catracas legadas.
+                    </p>
+                    <ul>
+                        <li><strong>Ponto Eletrônico (Operário):</strong> A rotina em <b>RH &gt; Bater Ponto</b> força o
+                            apertar de apenas um botão que aciona progressivamente os fluxos da folha na ordem correta:
+                            (1) <i>Entrada</i>, (2) <i>Saída de Almoço</i>, (3) <i>Retorno do Almoço</i> e (4)
+                            <i>Registro de Saída Final</i>.</li>
+                        <li><strong>Antifraude:</strong> Cada registro de ponto utiliza o relógio imutável do Cloud
+                            Server protegido. Não é possível um funcionário forjar a hora enviada do celular, garantindo
+                            100% de segurança jurídica.</li>
+                        <li><strong>Gestão (Administrador / RH):</strong> Na área de gestão <b>RH &gt; Gestão de
+                                Ponto</b>, a administração visualiza em tempo real um painel dos operários com o status
+                            atual indicando quem está "Trabalhando", "Em Almoço" ou quem já fexou o expediente do dia.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ / PERGUNTAS FREQUENTES -->
+        <div class="accordion-item border rounded shadow-sm mb-5">
+            <h2 class="accordion-header" id="headingFaq">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseFaq" aria-expanded="false" aria-controls="collapseFaq"
+                    style="font-weight: 600; font-size: 1rem;">
+                    <i class="fas fa-question-circle me-2 text-secondary"></i> 8. Perguntas Frequentes (FAQ)
+                </button>
+            </h2>
+            <div id="collapseFaq" class="accordion-collapse collapse" aria-labelledby="headingFaq"
+                data-bs-parent="#accordionAjuda">
+                <div class="accordion-body" style="font-size: 0.9rem; line-height: 1.6; color: #475569;">
+                    <div class="mb-4">
+                        <h5 style="color: #1e293b; font-weight: 600;">O ERP gera Códigos de Barras (EAN-13)
+                            automaticamente?</h5>
+                        <p><strong>Não. E isso é para sua segurança legal e comercial.</strong> O Brasil segue o
+                            padrão global de varejo ditado pela <em>GS1 Brasil</em>. Se o sistema gerasse números
+                            aleatórios de 13 dígitos da nossa cabeça, seu produto apitaria em todos os caixas de
+                            supermercado ou farmácia do país como se fosse uma "Coca-Cola" ou daria conflito de
+                            cadastro nos grandes varejistas.</p>
+                        <p><strong>A regra legal é:</strong> A sua indústria precisa se afiliar à GS1 Brasil para
+                            comprar o "Prefixo de Empresa", e você mesmo gera os últimos dígitos oficiais para os
+                            seus novos produtos no painel deles. Tendo o número oficial em mãos, você digita ele no
+                            campo <strong>EAN (Código de Barras)</strong> lá na tela de Cadastrar Produto do ERP. O
+                            nosso sistema já está configurado e travado para receber apenas os 13 dígitos originais.
+                        </p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 style="color: #1e293b; font-weight: 600;">Qual é a diferença pro código SKU?</h5>
+                        <p>O <strong>SKU - Stock-Keeping Unitrong> (Unidade de Manutenção de Estoque) é 100%
                                 interno. Não existe Lei
                                 ou padrão governamental para ele. Você é livre para criar a nomenclatura que a sua
                                 equipe achar mais fácil de ler no almoxarifado.</p>
-                            <p><em>Exemplo:</em> Para um "Shampoo Anticaspa 300ml", você pode padronizar verbalmente que
-                                o SKU na sua fábrica vai ser <code>SHA-ACA-300</code>. O ERP tem o campo SKU livre para
-                                digitação, garantindo apenas que você não cadastre o mesmo código duas vezes para não
-                                misturar os estoques.</p>
-                        </div>
+                        <p><em>Exemplo:</em> Para um "Shampoo Anticaspa 300ml", você pode padronizar verbalmente que
+                            o SKU na sua fábrica vai ser <code>SHA-ACA-300</code>. O ERP tem o campo SKU livre para
+                            digitação, garantindo apenas que você não cadastre o mesmo código duas vezes para não
+                            misturar os estoques.</p>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 </main>
 
 </html>
